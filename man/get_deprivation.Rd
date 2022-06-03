@@ -6,7 +6,8 @@
 \usage{
 get_deprivation(geography, variables, keep_subscales = FALSE,
     keep_components = FALSE, output = "tidy", year, state = NULL,
-    county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE)
+    county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
+    units)
 }
 \arguments{
 \item{geography}{A character scalar; one of \code{"state"}, \code{"county"}, or
@@ -43,10 +44,13 @@ number of spatial variables are returned. If \code{TRUE}, a full set of
 TIGER/Line variables are returned. This is only relevant if
 \code{geometry = TRUE}.}
 
-\item{shift_geo}{A logical salar; if \code{FALSE} (defualt), Alaska and
+\item{shift_geo}{A logical scalar; if \code{FALSE} (defualt), Alaska and
 Hawaii will appear in their cartographically correct locations. If
 \code{TRUE}, Alaska and Hawaii will be shifted south to facilitate
 more straightforward national mapping.}
+
+\item{units}{A character scalar; either \code{"mi"} (miles) or \code{"km"}
+(kilometers)}
 }
 \description{
 Calculates various measures of deprivation.

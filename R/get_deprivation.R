@@ -4,7 +4,8 @@
 #'
 #' @usage get_deprivation(geography, variables, keep_subscales = FALSE,
 #'     keep_components = FALSE, output = "tidy", year, state = NULL,
-#'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE)
+#'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
+#'     units)
 #'
 #' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
 #'     \code{"tract"}
@@ -45,7 +46,7 @@ get_deprivation <- function(geography, variables,
                             units){
 
   # global bindings
-  # x = NULL
+  ALAND = AWATER = NAME.y = estimate = gini_e = gini_m = moe = variable = NULL
 
   # check inputs
   if (missing(geography)) {
@@ -59,6 +60,11 @@ get_deprivation <- function(geography, variables,
   # optionally add geometry, otherwise only return gini if requested
   if (geometry == TRUE){
 
+    ## check output
+    if (output == "tidy"){
+      stop("Please set 'output' to 'wide' if you would like geometric data.")
+    }
+
     ## download data
     out_gini <- get_gini(geography = geography, output = output, year = year, state = state,
                          county = county, geometry = TRUE,
@@ -66,11 +72,7 @@ get_deprivation <- function(geography, variables,
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
-      if (output == "tidy"){
-        out_gini <- subset(out_gini, select = -c(variable, estimate, moe))
-      } else if (output == "wide"){
-        out_gini <- subset(out_gini, select = -c(gini_e, gini_m))
-      }
+      out_gini <- subset(out_gini, select = -c(gini_e, gini_m))
     }
 
     ## tidy up geo vars

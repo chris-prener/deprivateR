@@ -8,7 +8,7 @@ Authors@R: c(
 Description: Provides a unified framework to building deprivation measures
     and accessing related data from the U.S. Census Bureau such as Gini
     coefficient data.
-Depends: R (>= 3.4)
+Depends: R (>= 3.5)
 License: GPL-3
 URL: https://chris-prener.github.io/censusxy/
 BugReports: https://github.com/chris-prener/censusxy/issues

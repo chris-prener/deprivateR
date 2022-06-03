@@ -1,19 +1,13 @@
-Package: censusxy
-Title: Access the U.S. Census Bureau's Geocoding A.P.I. System
-Version: 1.1.0
+Package: deprivateR
+Title: Measures of Deprivation
+Version: 0.1.0.9000
 Authors@R: c(
     person("Christopher", "Prener", ,"chris.prener@gmail.com", c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-4310-9888")),
-    person("Branson", "Fox", ,"branson.fox@slu.edu", c("aut"),
-    comment = c(ORCID = "0000-0002-4361-2811")),
-    person("Christopher", "Kenny", ,"christopherkenny@fas.harvard.edu", c("ctb"),
-    comment = c(ORCID = "0000-0002-9386-6860"))
+    comment = c(ORCID = "0000-0002-4310-9888"))
     )
-Description: Provides access to the U.S. Census Bureau's A.P.I for matching American
-    street addresses with their longitude and latitude. This includes both single address matching
-    as well as batch functionality for multiple addresses. Census geographies can be appended to 
-    addresses if desired, and reverse geocoding of point locations to census geographies is also 
-    supported. 
+Description: Provides a unified framework to building deprivation measures
+    and accessing related data from the U.S. Census Bureau such as Gini
+    coefficient data.
 Depends: R (>= 3.4)
 License: GPL-3
 URL: https://chris-prener.github.io/censusxy/
@@ -21,16 +15,14 @@ BugReports: https://github.com/chris-prener/censusxy/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
-Imports: 
-    doParallel,
-    foreach,
-    httr,
-    parallel,
-    utils
-Suggests: 
+Imports:
+    measurements,
+    tidycensus
+Suggests:
     covr,
     knitr,
     rmarkdown,
     sf,
-    testthat
+    testthat,
+    tigris
 VignetteBuilder: knitr

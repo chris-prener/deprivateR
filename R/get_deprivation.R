@@ -72,7 +72,7 @@ get_deprivation <- function(geography, variables,
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
-      out_gini <- subset(out_gini, select = -c(gini_e, gini_m))
+      out_gini <- dplyr::select(out_gini, -c(gini_e, gini_m))
     }
 
     ## tidy up geo vars
@@ -80,26 +80,25 @@ get_deprivation <- function(geography, variables,
 
       ### land and water area
       if (units == "mi"){
-        out_gini$ALAND_SQMI <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "mi2")
-        out_gini$AWATER_SQMI <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2")
+        out <- dplyr::mutate(out,
+                             ALAND_SQMI = measurements::conv_unit(ALAND, from = "m2", to = "mi2"),
+                             AWATER_SQMI = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2"),
+                             .after = LSAD)
       } else if (units == "km"){
         out_gini$ALAND_SQKM <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "km2")
-        out_gini$AWATER_SQKM <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km2")
+        out <- dplyr::mutate(out,
+                             ALAND_SQKM = measurements::conv_unit(ALAND, from = "m2", to = "km"),
+                             AWATER_SQKM = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km"),
+                             .after = LSAD)
       }
 
-      out_gini <- subset(out_gini, select = -c(ALAND, AWATER))
+      out_gini <- dplyr::select(out_gini, -c(ALAND, AWATER))
 
       ### fix variable names
       if (geography == "state"){
-        names(out_gini)[names(out_gini) == "NAME.x"] <- "NAME"
-        out_gini <- subset(out_gini, select = -NAME.y)
+        out_gini <- dplyr::rename(out_gini, NAME = NAME.x)
+        out_gini <- dplyr::select(out_gini, -NAME.y)
       }
-
-      ### move geometry to the end
-      names <- names(out_gini)
-      names <- names[! names %in% "geometry"]
-      names <- c(names, "geometry")
-      out_gini <- out_gini[, names]
 
     }
 
@@ -112,6 +111,11 @@ get_deprivation <- function(geography, variables,
 
   # combine output
   out <- out_gini
+
+  # move geometry to the end
+  if (geometry == TRUE){
+    out <- dplyr::relocate(geometry, .after = last_col())
+  }
 
   # return output
   return(out)

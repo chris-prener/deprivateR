@@ -23,12 +23,8 @@ hhd_vars <- c("S0101_C01_001", "S0101_C01_030", "S0101_C01_022", # selected age 
 
 ### theme 3 - minority status and language
 msl_vars <- c("S0601_C01_001", # total population
-              "B01001H_001", # white, non-hispanic population
-              "B16004_001", # age by language spoken at home
-              "B02001_001", "B02001_002", "B02001_003", "B02001_004", # racial identity
-              "B02001_005", "B02001_006", "B02001_007", "B02001_008",
-              "B03003_001", "B03003_003") # hispanic/latino origin
-
+              "B01001H_001") # white, non-hispanic population
+eng_table <- "B16004"
 eng_vars <- c("B16004_007", "B16004_008", "B16004_012", "B16004_013", "B16004_017", "B16004_018", "B16004_022", "B16004_023",
               "B16004_029", "B16004_030", "B16004_034", "B16004_035", "B16004_039", "B16004_040", "B16004_044", "B16004_045",
               "B16004_051", "B16004_052", "B16004_056", "B16004_057", "B16004_061", "B16004_062", "B16004_066", "B16004_067")
@@ -37,15 +33,11 @@ eng_vars <- c("B16004_007", "B16004_008", "B16004_012", "B16004_013", "B16004_01
 htt_vars <- c("DP04_0006", # total housing units for structure type
               "DP04_0012", "DP04_0013", # 10 or more units
               "DP04_0014", # mobile home units
-              "DP04_0003", # vacant housing units
-              "DP04_0045", # occupied housing units
-              "DP04_0047", # renter occupied housing units
               "DP04_0076", "DP04_0078", "DP04_0079", # crowding
               "DP04_0057", "DP04_0058", # vehicles available
               "B26001_001", # group quarters population
               "DP04_0001", # total housing units
-              "S0601_C01_001E", # total population
-              "DP04_0002E") # occupied housing units
+              "S0601_C01_001E") # total population
 
 ### combine
 svi19 <- list(
@@ -53,6 +45,7 @@ svi19 <- list(
   ses_vars = ses_vars,
   hhd_vars = hhd_vars,
   msl_vars = msl_vars,
+  eng_table = eng_table,
   eng_vars = eng_vars,
   htt_vars = htt_vars
 )

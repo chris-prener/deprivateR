@@ -46,7 +46,8 @@ get_deprivation <- function(geography, variables,
                             units){
 
   # global bindings
-  ALAND = AWATER = NAME.y = estimate = gini_e = gini_m = moe = variable = NULL
+  ALAND = AWATER = NAME.x = NAME.y = estimate = gini_e = gini_m = moe =
+    variable = LSAD = NULL
 
   # check inputs
   if (missing(geography)) {
@@ -80,13 +81,12 @@ get_deprivation <- function(geography, variables,
 
       ### land and water area
       if (units == "mi"){
-        out <- dplyr::mutate(out,
+        out_gini <- dplyr::mutate(out_gini,
                              ALAND_SQMI = measurements::conv_unit(ALAND, from = "m2", to = "mi2"),
                              AWATER_SQMI = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2"),
                              .after = LSAD)
       } else if (units == "km"){
-        out_gini$ALAND_SQKM <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "km2")
-        out <- dplyr::mutate(out,
+        out_gini <- dplyr::mutate(out_gini,
                              ALAND_SQKM = measurements::conv_unit(ALAND, from = "m2", to = "km"),
                              AWATER_SQKM = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km"),
                              .after = LSAD)
@@ -114,7 +114,7 @@ get_deprivation <- function(geography, variables,
 
   # move geometry to the end
   if (geometry == TRUE){
-    out <- dplyr::relocate(geometry, .after = last_col())
+    out <- dplyr::relocate(out, geometry, .after = dplyr::last_col())
   }
 
   # return output

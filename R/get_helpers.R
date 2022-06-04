@@ -16,7 +16,7 @@ get_gini <- function(geography, output, year, state, county,
   if (output == "tidy"){
     out$variable <- "gini"
   } else if (output == "wide"){
-    out <- dplyr::rename(out, gini_e = B19083_001E, gini_m = B19083_001M)
+    out <- dplyr::rename(out, E_GINI = B19083_001E, M_GINI = B19083_001M)
   }
 
   # return output
@@ -25,7 +25,11 @@ get_gini <- function(geography, output, year, state, county,
 }
 
 # Get SVI ####
-get_svi <- function(geography, year, state, county, keep_subscales, keep_components){
+get_svi <- function(geography, year, output, state, county, keep_subscales, keep_components){
+
+  # global bindings
+  SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = RPL_THEME1 = RPL_THEME2 =
+    RPL_THEME3 = RPL_THEME4 = SPL_THEMES = NULL
 
   ## download variables
   if (keep_components == TRUE){
@@ -39,9 +43,32 @@ get_svi <- function(geography, year, state, county, keep_subscales, keep_compone
                         keep_components = keep_components)
   theme3 <- get_svi_msl(geography = geography, year = year, state = state, county = county,
                         keep_components = keep_components)
+  theme4 <- get_svi_htt(geography = geography, year = year, state = state, county = county,
+                        keep_components = keep_components)
+
+  ## combine
+  if (keep_components == TRUE){
+    theme1 <- dplyr::left_join(pri, theme1, by = "GEOID")
+  }
+
+  out <- dplyr::left_join(theme1, theme2, by = "GEOID")
+  out <- dplyr::left_join(out, theme3, by = "GEOID")
+  out <- dplyr::left_join(out, theme4, by = "GEOID")
+
+  ## calculate svi
+  out <- dplyr::mutate(out, SPL_THEMES = SPL_THEME1 + SPL_THEME2 + SPL_THEME3 + SPL_THEME4)
+  out <- dplyr::mutate(out, SVI = dplyr::percent_rank(SPL_THEMES)*100)
+  out <- dplyr::mutate(out, RPL_THEME1 = RPL_THEME1*100,
+                       RPL_THEME2 = RPL_THEME2*100,
+                       RPL_THEME3 = RPL_THEME3*100,
+                       RPL_THEME4 = RPL_THEME4*100)
+
+  ## keep components / keep subscales
+
+  ## convert to long optionally
 
   ## return output
-  # return(out)
+  return(out)
 
 }
 
@@ -139,7 +166,7 @@ get_svi_ses <- function(geography, year, state, county, keep_components){
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, RPL_THEME1)
+    out <- dplyr::select(out, GEOID, SPL_THEME1, RPL_THEME1)
   }
 
   ## return output
@@ -211,7 +238,7 @@ get_svi_hhd <- function(geography, year, state, county, keep_components){
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, RPL_THEME2)
+    out <- dplyr::select(out, GEOID, SPL_THEME2, RPL_THEME2)
   }
 
   ## return output
@@ -271,7 +298,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components){
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, RPL_THEME3)
+    out <- dplyr::select(out, GEOID, SPL_THEME3, RPL_THEME3)
   }
 
   ## return output
@@ -287,7 +314,11 @@ get_svi_htt <- function(geography, year, state, county, keep_components){
     DP04_0078M = DP04_0079M = GEOID = DP04_0006E = DP04_0006M = E_MUNIT =
     M_MUNIT = DP04_0014E = DP04_0014M = DP04_0002E = DP04_0002M = E_CROWD =
     M_CROWD = DP04_0057E = DP04_0057M = DP04_0058E = DP04_0058M =
-    B26001_001E = B26001_001M = S0601_C01_001E = NULL
+    B26001_001E = B26001_001M = S0601_C01_001E = D_HOUSE = EP_MUNIT = E_MOBILE =
+    EP_MOBILE = M_MOBILE = D_CROWD = EP_CROWD =
+    E_NOVEH = D_NOVEH = EP_NOVEH = M_NOVEH = E_GROUPQ = EP_GROUPQ =
+    M_GROUPQ = DP04_0001E = EPL_MUNIT = EPL_MOBILE = EPL_CROWD = EPL_NOVEH =
+    EPL_GROUPQ = SPL_THEME4 = RPL_THEME4 = NULL
 
   ## download
   out <- tidycensus::get_acs(geography = geography, state = state, county = county,
@@ -320,5 +351,39 @@ get_svi_htt <- function(geography, year, state, county, keep_components){
     M_GROUPQ = B26001_001M,
     S0601_C01_001E
   )
+
+  ### calculat theme 3
+  out <- dplyr::mutate(out, EP_MUNIT = E_MUNIT/D_HOUSE*100,
+                       EPL_MUNIT = dplyr::percent_rank(EP_MUNIT),
+                       .after = M_MUNIT)
+
+  out <- dplyr::mutate(out, EP_MOBILE = E_MOBILE/D_HOUSE*100,
+                       EPL_MOBILE = dplyr::percent_rank(EP_MOBILE),
+                       .after = M_MOBILE)
+
+  out <- dplyr::mutate(out, EP_CROWD = E_CROWD/D_CROWD*100,
+                       EPL_CROWD = dplyr::percent_rank(EP_CROWD),
+                       .after = M_CROWD)
+
+  out <- dplyr::mutate(out, EP_NOVEH = E_NOVEH/D_NOVEH*100,
+                       EPL_NOVEH = dplyr::percent_rank(EP_NOVEH),
+                       .after = M_NOVEH)
+
+  out <- dplyr::mutate(out, EP_GROUPQ = E_GROUPQ/S0601_C01_001E*100,
+                       EPL_GROUPQ = dplyr::percent_rank(EP_GROUPQ),
+                       .after = M_GROUPQ)
+
+  out <- dplyr::select(out, -DP04_0001E, -S0601_C01_001E)
+
+  out <- dplyr::mutate(out, SPL_THEME4 = EPL_MUNIT + EPL_MOBILE + EPL_CROWD + EPL_NOVEH + EPL_GROUPQ,
+                       RPL_THEME4 = dplyr::percent_rank(SPL_THEME4))
+
+  ## optionally drop components
+  if (keep_components == FALSE){
+    out <- dplyr::select(out, GEOID, SPL_THEME4, RPL_THEME4)
+  }
+
+  ## return output
+  return(out)
 
 }

@@ -46,8 +46,8 @@ get_deprivation <- function(geography, variables,
                             units){
 
   # global bindings
-  ALAND = AWATER = NAME.x = NAME.y = estimate = gini_e = gini_m = moe =
-    variable = LSAD = NULL
+  ALAND = AWATER = NAME.x = NAME.y = estimate = E_GINI = M_GINI = moe =
+    variable = LSAD = GEOID = NULL
 
   # check inputs
   if (missing(geography)) {
@@ -73,7 +73,7 @@ get_deprivation <- function(geography, variables,
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
-      out_gini <- dplyr::select(out_gini, -c(gini_e, gini_m))
+      out_gini <- dplyr::select(out_gini, -c(E_GINI, M_GINI))
     }
 
     ## tidy up geo vars
@@ -103,11 +103,16 @@ get_deprivation <- function(geography, variables,
     }
 
   } else if (geometry == FALSE & "gini" %in% variables == TRUE){
-    out_gini <- get_gini(geography = geography, output = output, year = year, state = state,
-                         county = county)
+    out_gini <- get_gini(geography = geography, output = output, year = year,
+                         state = state, county = county)
   }
 
-  # if ("svi" %in% variables == TRUE)
+  if ("svi" %in% variables == TRUE){
+    out_svi <- get_svi(geography = geography, output = output, year = year,
+                       state = state, county = county,
+                       keep_subscales = keep_subscales,
+                       keep_components = keep_components)
+  }
 
   # combine output
   out <- out_gini
@@ -116,6 +121,9 @@ get_deprivation <- function(geography, variables,
   if (geometry == TRUE){
     out <- dplyr::relocate(out, geometry, .after = dplyr::last_col())
   }
+
+  # order output
+  out <- dplyr::arrange(out, GEOID)
 
   # return output
   return(out)

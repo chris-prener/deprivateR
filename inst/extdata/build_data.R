@@ -50,7 +50,7 @@ svi19 <- list(
   htt_vars = htt_vars
 )
 
-rm(pri_vars, ses_vars, hhd_vars, msl_vars, eng_vars, htt_vars)
+rm(pri_vars, ses_vars, hhd_vars, msl_vars, eng_table, eng_vars, htt_vars)
 
 ## Extras ####
 extras19 <- c("B13015_001", "B13015_002", # recent births
@@ -70,5 +70,79 @@ request_vars <- list(
   extras19 = extras19
 )
 
-## Save Internal Data Object ####
-save(request_vars, file = "R/sysdata.rda", version = 2)
+rm(gini10, svi19, extras19)
+
+# Create Test Data ####
+## Dependencies ####
+library(tidycensus)
+
+## Pull Gini Data ####
+test_gini_df <- get_acs(geography = "county", table = request_vars$gini1,
+                        output = "wide", year = 2019, state = 29,
+                        geometry = FALSE, keep_geo_vars = FALSE)
+
+test_gini_sf <- get_acs(geography = "county", table = request_vars$gini1,
+                        output = "wide", year = 2019, state = 29,
+                        geometry = TRUE, keep_geo_vars = FALSE)
+
+test_gini_sf_geo <- get_acs(geography = "county", table = request_vars$gini1,
+                        output = "wide", year = 2019, state = 29,
+                        geometry = TRUE, keep_geo_vars = TRUE)
+
+test_gini <- list(
+  test_gini_df = test_gini_df,
+  test_gini_sf = test_gini_sf,
+  test_gini_sf_geo = test_gini_sf_geo
+)
+
+rm(test_gini_df, test_gini_sf, test_gini_sf_geo)
+
+## Pull SVI Data ####
+test_svi_pri <- get_acs(geography = "county", state = 29,
+                        variables = request_vars$svi19$pri_vars,
+                        output = "wide", year = 2019)
+
+test_svi_ses <- get_acs(geography = "county", state = 29,
+                        variables = request_vars$svi19$ses_vars,
+                        output = "wide", year = 2019)
+
+test_svi_hhd <- get_acs(geography = "county", state = 29,
+                        variables = request_vars$svi19$hhd_vars,
+                        output = "wide", year = 2019)
+
+test_svi_msl <- get_acs(geography = "county", state = 29,
+                        variables = request_vars$svi19$msl_vars,
+                        output = "wide", year = 2019)
+
+test_svi_eng <- get_acs(geography = "county", state = 29,
+                        table = request_vars$svi19$eng_table,
+                        output = "wide", year = 2019)
+
+test_svi_htt <- get_acs(geography = "county", state = 29,
+                        variables = request_vars$svi19$htt_vars,
+                        output = "wide", year = 2019)
+
+test_svi <- list(
+  test_svi_pri = test_svi_pri,
+  test_svi_ses = test_svi_ses,
+  test_svi_hhd = test_svi_hhd,
+  test_svi_msl = test_svi_msl,
+  test_svi_eng = test_svi_eng,
+  test_svi_htt = test_svi_htt
+)
+
+rm(test_svi_pri, test_svi_ses, test_svi_hhd, test_svi_msl, test_svi_eng, test_svi_htt)
+
+# Create Internal Data Object ####
+out <- list(
+  request_vars = request_vars,
+  test_data = list(
+    test_gini = test_gini,
+    test_svi = test_svi
+  )
+)
+
+rm(request_vars, test_gini, test_svi)
+
+# Save Internal Data Object ####
+save(out, file = "R/sysdata.rda", version = 2)

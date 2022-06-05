@@ -8,7 +8,7 @@ get_gini <- function(geography, output, year, state, county,
   # call tidycensus
   out <- tidycensus::get_acs(geography = geography, table = request_vars$gini10,
                              output = output, year = year,
-                             state = state, county = county,
+                             state = state, county = county, survey = "acs5",
                              geometry = geometry, keep_geo_vars = keep_geo_vars,
                              shift_geo = FALSE)
 
@@ -33,8 +33,7 @@ get_svi <- function(geography, year, output, state, county, keep_subscales, keep
 
   ## download variables
   if (keep_components == TRUE){
-    pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
-                       keep_components = keep_components)
+    pri <- get_svi_pri(geography = geography, year = year, state = state, county = county)
   }
 
   theme1 <- get_svi_ses(geography = geography, year = year, state = state, county = county,
@@ -73,7 +72,7 @@ get_svi <- function(geography, year, output, state, county, keep_subscales, keep
 }
 
 ## primary variables ####
-get_svi_pri <- function(geography, year, state, county, keep_components){
+get_svi_pri <- function(geography, year, state, county){
 
   ### global bindings
   GEOID = S0601_C01_001E = DP04_0001E = DP02_0001E = S0601_C01_001M =
@@ -85,28 +84,14 @@ get_svi_pri <- function(geography, year, state, county, keep_components){
                              year = year, suvey = "acs5")
 
   ## process components
-  if (keep_components == FALSE){
-
-    out <- dplyr::select(out,
-      GEOID,
-      E_TOTPOP = S0601_C01_001E,
-      E_HU = DP04_0001E,
-      E_HH = DP02_0001E
-    )
-
-  } else if (keep_components == TRUE){
-
-    out <- dplyr::select(out,
-      GEOID,
-      E_TOTPOP = S0601_C01_001E,
-      M_TOTPOP = S0601_C01_001M,
-      E_HU = DP04_0001E,
-      M_HU = DP04_0001M,
-      E_HH = DP02_0001E,
-      M_HH = DP02_0001M
-    )
-
-  }
+  out <- dplyr::select(out,
+                       GEOID,
+                       E_TOTPOP = S0601_C01_001E,
+                       M_TOTPOP = S0601_C01_001M,
+                       E_HU = DP04_0001E,
+                       M_HU = DP04_0001M,
+                       E_HH = DP02_0001E,
+                       M_HH = DP02_0001M)
 
   ## return output
   return(out)

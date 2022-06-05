@@ -1,16 +1,30 @@
 # Get Gini coefficients ####
 get_gini <- function(geography, output, year, state, county,
-                     geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE){
+                     geometry = FALSE, keep_geo_vars = FALSE,
+                     shift_geo = FALSE, debug){
 
   # global bindings
   B19083_001E = B19083_001M = NULL
 
   # call tidycensus
-  out <- tidycensus::get_acs(geography = geography, table = request_vars$gini10,
-                             output = output, year = year,
-                             state = state, county = county, survey = "acs5",
-                             geometry = geometry, keep_geo_vars = keep_geo_vars,
-                             shift_geo = FALSE)
+  if (debug == FALSE){
+    out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                                table = dep_internal$request_vars$gini10,
+                                                output = output, year = year,
+                                                state = state, county = county, survey = "acs5",
+                                                geometry = geometry, keep_geo_vars = keep_geo_vars,
+                                                shift_geo = FALSE))
+  } else if (debug == TRUE){
+    if (geometry == TRUE & keep_geo_vars == FALSE){
+      out <- dep_internal$test_data$test_gini$test_gini_sf
+    } else if (geometry == TRUE & keep_geo_vars == TRUE) {
+      out <- dep_internal$test_data$test_gini$test_gini_sf_geo
+    } else if (geometry == FALSE & output == "wide"){
+      out <- dep_internal$test_data$test_gini$test_gini_df_wide
+    } else if (geometry == FALSE & output == "tidy"){
+      out <- dep_internal$test_data$test_gini$test_gini_df_tidy
+    }
+  }
 
   # structure output
   if (output == "tidy"){
@@ -25,7 +39,8 @@ get_gini <- function(geography, output, year, state, county,
 }
 
 # Get SVI ####
-get_svi <- function(geography, year, output, state, county, keep_subscales, keep_components){
+get_svi <- function(geography, year, output, state, county, keep_subscales,
+                    keep_components, debug){
 
   # global bindings
   SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = RPL_THEME1 = RPL_THEME2 =
@@ -33,17 +48,18 @@ get_svi <- function(geography, year, output, state, county, keep_subscales, keep
 
   ## download variables
   if (keep_components == TRUE){
-    pri <- get_svi_pri(geography = geography, year = year, state = state, county = county)
+    pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
+                       debug = debug)
   }
 
   theme1 <- get_svi_ses(geography = geography, year = year, state = state, county = county,
-                        keep_components = keep_components)
+                        keep_components = keep_components, debug = debug)
   theme2 <- get_svi_hhd(geography = geography, year = year, state = state, county = county,
-                        keep_components = keep_components)
+                        keep_components = keep_components, debug = debug)
   theme3 <- get_svi_msl(geography = geography, year = year, state = state, county = county,
-                        keep_components = keep_components)
+                        keep_components = keep_components, debug = debug)
   theme4 <- get_svi_htt(geography = geography, year = year, state = state, county = county,
-                        keep_components = keep_components)
+                        keep_components = keep_components, debug = debug)
 
   ## combine
   if (keep_components == TRUE){
@@ -72,16 +88,21 @@ get_svi <- function(geography, year, output, state, county, keep_subscales, keep
 }
 
 ## primary variables ####
-get_svi_pri <- function(geography, year, state, county){
+get_svi_pri <- function(geography, year, state, county, debug){
 
   ### global bindings
   GEOID = S0601_C01_001E = DP04_0001E = DP02_0001E = S0601_C01_001M =
     DP04_0001M = DP02_0001M = NULL
 
   ## download
-  out <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                             variables = request_vars$svi19$pri_vars, output = "wide",
-                             year = year, suvey = "acs5")
+  if (dots$debug == FALSE){
+    out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                            state = state, county = county,
+                            variables = dep_internal$request_vars$svi19$pri_vars,
+                            output = "wide", year = year, suvey = "acs5"))
+  } else if (dots$debug == TRUE){
+    out <- dep_internal$test_data$test_svi$test_svi_pri
+  }
 
   ## process components
   out <- dplyr::select(out,
@@ -99,7 +120,7 @@ get_svi_pri <- function(geography, year, state, county){
 }
 
 ## ses variables ####
-get_svi_ses <- function(geography, year, state, county, keep_components){
+get_svi_ses <- function(geography, year, state, county, keep_components, debug){
 
   ## global bindings
   GEOID = B17001_001E = B17001_001M = B17001_002E = DP03_0001E = DP03_0001M =
@@ -110,9 +131,14 @@ get_svi_ses <- function(geography, year, state, county, keep_components){
     EPL_PCI = EPL_NOHSDP = SPL_THEME1 = RPL_THEME1 = NULL
 
   ## download
-  out <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                             variables = request_vars$svi19$ses_vars, output = "wide",
-                             year = year, suvey = "acs5")
+  if (debug == FALSE){
+    out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                                state = state, county = county,
+                                                variables = dep_internal$request_vars$svi19$ses_vars,
+                                                output = "wide", year = year, suvey = "acs5"))
+  } else if (debug == TRUE){
+    out <- dep_internal$test_data$test_svi$test_svi_ses
+  }
 
   ## process components
   ### subset
@@ -160,7 +186,7 @@ get_svi_ses <- function(geography, year, state, county, keep_components){
 }
 
 ## hhd variables ####
-get_svi_hhd <- function(geography, year, state, county, keep_components){
+get_svi_hhd <- function(geography, year, state, county, keep_components, debug){
 
   ## global bindings
   DP02_0007E = DP02_0011E = DP02_0011M = GEOID = S0101_C01_001E =
@@ -172,9 +198,14 @@ get_svi_hhd <- function(geography, year, state, county, keep_components){
     EPL_SNGPNT = SPL_THEME2 = RPL_THEME2 = NULL
 
   ## download
-  out <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                             variables = request_vars$svi19$hhd_vars, output = "wide",
-                             year = year, suvey = "acs5")
+  if (debug == FALSE){
+    out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                                state = state, county = county,
+                                                variables = dep_internal$request_vars$svi19$hhd_vars,
+                                                output = "wide", year = year, suvey = "acs5"))
+  } else if (debug == TRUE){
+    out <- dep_internal$test_data$test_svi$test_svi_hhd
+  }
 
   ## process components
   ### pre-process single parent vars
@@ -232,7 +263,7 @@ get_svi_hhd <- function(geography, year, state, county, keep_components){
 }
 
 ## msl variables ####
-get_svi_msl <- function(geography, year, state, county, keep_components){
+get_svi_msl <- function(geography, year, state, county, keep_components, debug){
 
   ## global bindings
   variable = eng_vars = GEOID = estimate = S0601_C01_001E = B01001H_001E =
@@ -241,12 +272,19 @@ get_svi_msl <- function(geography, year, state, county, keep_components){
     SPL_THEME3 = RPL_THEME3 = NULL
 
   ## download
-  m <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                             variables = request_vars$svi19$msl_vars, output = "wide",
-                             year = year, suvey = "acs5")
-  e <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                            table = request_vars$svi19$eng_table, output = "wide",
-                            year = year, suvey = "acs5")
+  if (debug == FALSE){
+    m <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                                state = state, county = county,
+                                                variables = dep_internal$request_vars$svi19$msl_vars,
+                                                output = "wide", year = year, suvey = "acs5"))
+    e <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                              state = state, county = county,
+                                              table = dep_internal$request_vars$svi19$eng_table,
+                                              output = "wide", year = year, suvey = "acs5"))
+  } else if (debug == TRUE){
+    m <- dep_internal$test_data$test_svi$test_svi_msl
+    e <- dep_internal$test_data$test_svi$test_svi_eng
+  }
 
   ## process components
   ### subset e2
@@ -292,7 +330,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components){
 }
 
 ## hhd variables ####
-get_svi_htt <- function(geography, year, state, county, keep_components){
+get_svi_htt <- function(geography, year, state, county, keep_components, debug){
 
   ## global bindings
   DP04_0012E = DP04_0013E = DP04_0012M = DP04_0013M = DP04_0078E = DP04_0079E =
@@ -306,9 +344,10 @@ get_svi_htt <- function(geography, year, state, county, keep_components){
     EPL_GROUPQ = SPL_THEME4 = RPL_THEME4 = NULL
 
   ## download
-  out <- tidycensus::get_acs(geography = geography, state = state, county = county,
-                             variables = request_vars$svi19$htt_vars, output = "wide",
-                             year = year, suvey = "acs5")
+  out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                              state = state, county = county,
+                                              variables = dep_internal$request_vars$svi19$htt_vars,
+                                              output = "wide", year = year, suvey = "acs5"))
 
   ## process components
   ### pre-process crowding vars

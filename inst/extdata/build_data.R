@@ -77,9 +77,13 @@ rm(gini10, svi19, extras19)
 library(tidycensus)
 
 ## Pull Gini Data ####
-test_gini_df <- get_acs(geography = "county", table = request_vars$gini1,
+test_gini_df_wide <- get_acs(geography = "county", table = request_vars$gini1,
                         output = "wide", year = 2019, state = 29,
                         geometry = FALSE, keep_geo_vars = FALSE)
+
+test_gini_df_tidy <- get_acs(geography = "county", table = request_vars$gini1,
+                             output = "tidy", year = 2019, state = 29,
+                             geometry = FALSE, keep_geo_vars = FALSE)
 
 test_gini_sf <- get_acs(geography = "county", table = request_vars$gini1,
                         output = "wide", year = 2019, state = 29,
@@ -90,12 +94,13 @@ test_gini_sf_geo <- get_acs(geography = "county", table = request_vars$gini1,
                         geometry = TRUE, keep_geo_vars = TRUE)
 
 test_gini <- list(
-  test_gini_df = test_gini_df,
+  test_gini_df_wide = test_gini_df_wide,
+  test_gini_df_tidy = test_gini_df_tidy,
   test_gini_sf = test_gini_sf,
   test_gini_sf_geo = test_gini_sf_geo
 )
 
-rm(test_gini_df, test_gini_sf, test_gini_sf_geo)
+rm(test_gini_df_wide, test_gini_df_tidy, test_gini_sf, test_gini_sf_geo)
 
 ## Pull SVI Data ####
 test_svi_pri <- get_acs(geography = "county", state = 29,
@@ -134,7 +139,7 @@ test_svi <- list(
 rm(test_svi_pri, test_svi_ses, test_svi_hhd, test_svi_msl, test_svi_eng, test_svi_htt)
 
 # Create Internal Data Object ####
-out <- list(
+dep_internal <- list(
   request_vars = request_vars,
   test_data = list(
     test_gini = test_gini,
@@ -145,4 +150,4 @@ out <- list(
 rm(request_vars, test_gini, test_svi)
 
 # Save Internal Data Object ####
-save(out, file = "R/sysdata.rda", version = 2)
+save(dep_internal, file = "R/sysdata.rda", version = 2)

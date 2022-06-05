@@ -5,7 +5,7 @@
 #' @usage get_deprivation(geography, variables, keep_subscales = FALSE,
 #'     keep_components = FALSE, output = "tidy", year, state = NULL,
 #'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-#'     units)
+#'     units, ...)
 #'
 #' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
 #'     \code{"tract"}
@@ -35,19 +35,29 @@
 #'     Hawaii will appear in their cartographically correct locations. If
 #'     \code{TRUE}, Alaska and Hawaii will be shifted south to facilitate
 #'     more straightforward national mapping.
-#' @param units A character scalar; either \code{"mi"} (miles) or \code{"km"}
-#'     (kilometers)
+#' @param units A character scalar; either \code{"mi"} (default; miles) or
+#'     \code{"km"} (kilometers)
+#' @param ... Additional parameters for debugging and testing \code{deprivateR}
 #'
 #' @export
 get_deprivation <- function(geography, variables,
                             keep_subscales = FALSE, keep_components = FALSE,
                             output = "tidy", year, state = NULL, county = NULL,
                             geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-                            units){
+                            units, ...){
 
   # global bindings
   ALAND = AWATER = NAME.x = NAME.y = estimate = E_GINI = M_GINI = moe =
     variable = LSAD = GEOID = NULL
+
+  # evaluate debugging mode
+  dots <- list(...)
+
+  if (is.null(dots$debug) == TRUE){
+    debug <- FALSE
+  } else if (dots$debug == TRUE){
+    debug <- TRUE
+  }
 
   # check inputs
   if (missing(geography)) {
@@ -67,9 +77,10 @@ get_deprivation <- function(geography, variables,
     }
 
     ## download data
-    out_gini <- get_gini(geography = geography, output = output, year = year, state = state,
-                         county = county, geometry = TRUE,
-                         keep_geo_vars = keep_geo_vars, shift_geo = shift_geo)
+    out_gini <- get_gini(geography = geography, output = output, year = year,
+                         state = state, county = county, geometry = TRUE,
+                         keep_geo_vars = keep_geo_vars, shift_geo = shift_geo,
+                         debug = debug)
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
@@ -104,7 +115,7 @@ get_deprivation <- function(geography, variables,
 
   } else if (geometry == FALSE & "gini" %in% variables == TRUE){
     out_gini <- get_gini(geography = geography, output = output, year = year,
-                         state = state, county = county)
+                         state = state, county = county, debug = debug)
   }
 
   if ("svi" %in% variables == TRUE){

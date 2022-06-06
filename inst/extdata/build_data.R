@@ -23,7 +23,8 @@ hhd_vars <- c("S0101_C01_001", "S0101_C01_030", "S0101_C01_022", # selected age 
 
 ### theme 3 - minority status and language
 msl_vars <- c("S0601_C01_001", # total population
-              "B01001H_001") # white, non-hispanic population
+              "B01001H_001", # white, non-hispanic population
+              "B16004_001")
 eng_table <- "B16004"
 eng_vars <- c("B16004_007", "B16004_008", "B16004_012", "B16004_013", "B16004_017", "B16004_018", "B16004_022", "B16004_023",
               "B16004_029", "B16004_030", "B16004_034", "B16004_035", "B16004_039", "B16004_040", "B16004_044", "B16004_045",
@@ -37,7 +38,8 @@ htt_vars <- c("DP04_0006", # total housing units for structure type
               "DP04_0057", "DP04_0058", # vehicles available
               "B26001_001", # group quarters population
               "DP04_0001", # total housing units
-              "S0601_C01_001E") # total population
+              "S0601_C01_001E", # total population
+              "DP04_0002E") # occupied housing units
 
 ### combine
 svi19 <- list(
@@ -75,6 +77,7 @@ rm(gini10, svi19, extras19)
 # Create Test Data ####
 ## Dependencies ####
 library(tidycensus)
+library(sociome)
 
 ## Pull Gini Data ####
 test_gini_df_wide <- get_acs(geography = "county", table = request_vars$gini1,
@@ -121,7 +124,7 @@ test_svi_msl <- get_acs(geography = "county", state = 29,
 
 test_svi_eng <- get_acs(geography = "county", state = 29,
                         table = request_vars$svi19$eng_table,
-                        output = "wide", year = 2019)
+                        output = "tidy", year = 2019)
 
 test_svi_htt <- get_acs(geography = "county", state = 29,
                         variables = request_vars$svi19$htt_vars,
@@ -138,12 +141,16 @@ test_svi <- list(
 
 rm(test_svi_pri, test_svi_ses, test_svi_hhd, test_svi_msl, test_svi_eng, test_svi_htt)
 
+## Pull ADI Data ####
+test_adi <- get_adi(geography = "county", state = "MO", year = 2019, dataset = "acs5")
+
 # Create Internal Data Object ####
 dep_internal <- list(
   request_vars = request_vars,
   test_data = list(
     test_gini = test_gini,
-    test_svi = test_svi
+    test_svi = test_svi,
+    test_adi = test_adi
   )
 )
 

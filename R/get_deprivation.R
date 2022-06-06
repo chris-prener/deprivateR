@@ -3,7 +3,7 @@
 #' @description Calculates various measures of deprivation.
 #'
 #' @usage get_deprivation(geography, variables, keep_subscales = FALSE,
-#'     keep_components = FALSE, output = "tidy", year, state = NULL,
+#'     keep_components = FALSE, output=, year, state = NULL,
 #'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
 #'     units, ...)
 #'
@@ -42,7 +42,7 @@
 #' @export
 get_deprivation <- function(geography, variables,
                             keep_subscales = FALSE, keep_components = FALSE,
-                            output = "tidy", year, state = NULL, county = NULL,
+                            output, year, state = NULL, county = NULL,
                             geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
                             units, ...){
 
@@ -101,9 +101,12 @@ get_deprivation <- function(geography, variables,
       out <- subset(out, select = -c(ALAND, AWATER))
 
       ### fix variable names
-      if (geography %in% c("state", "county")){
+      if (geography == "state"){
         names(out)[names(out) == "NAME.x"] <- "NAME"
         out <- subset(out, select = -NAME.y)
+      } else if (geography == "county"){
+        names(out)[names(out) == "NAME.y"] <- "NAME"
+        out <- subset(out, select = -NAME.x)
       }
 
     }
@@ -113,18 +116,28 @@ get_deprivation <- function(geography, variables,
                          state = state, county = county, debug = debug)
   }
 
+  ## get SVI scores
   if ("svi" %in% variables == TRUE){
     ## pull data
     out_svi <- get_svi(geography = geography, output = output, year = year,
                        state = state, county = county,
                        keep_subscales = keep_subscales,
-                       keep_components = keep_components)
+                       keep_components = keep_components, debug = debug)
 
     ## combine
-    if (output == "tidy"){
-      out <- rbind(out, out_svi)
-    } else if (output == "wide"){
+    if (geometry == TRUE){
+      out_svi <- subset(out_svi, select = -NAME)
       out <- merge(x = out, y = out_svi, by = "GEOID", all.x = TRUE)
+    } else if (geometry == FALSE & "gini" %in% variables == TRUE){
+      if (output == "tidy"){
+        out_svi$moe <- NA
+        out <- rbind(out, out_svi)
+      } else if (output == "wide"){
+        out_svi <- subset(out_svi, select = -NAME)
+        out <- merge(x = out, y = out_svi, by = "GEOID", all.x = TRUE)
+      }
+    } else {
+      out <- out_svi
     }
   }
 
@@ -134,7 +147,7 @@ get_deprivation <- function(geography, variables,
   }
 
   # order output
-  out <- out[order("GEOID"), , drop = FALSE]
+  out <- dplyr::arrange(out, GEOID)
 
   # return output
   return(out)

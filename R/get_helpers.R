@@ -36,6 +36,81 @@ get_gini <- function(geography, output, year, state, county,
 
 }
 
+# Get ADI ####
+get_adi <- function(geography, output, year, state, county, debug){
+
+  # global variables
+  GEOID = NAME = variable = estimate = Financial_Strength =
+    Economic_Hardship_and_Inequality = Educational_Attainment = NULL
+
+  # call sociome
+  if (debug == FALSE){
+    out <- suppressMessages(sociome::get_adi(geography = geography,
+                                             state = state,
+                                             county = county,
+                                             year = year,
+                                             dataset = "acs5"))
+  } else if (debug == TRUE){
+    out <- dep_internal$test_data$test_adi
+  }
+
+  # remove ADI3
+  out <- subset(out, select = -c(Financial_Strength,
+                                 Economic_Hardship_and_Inequality,
+                                 Educational_Attainment))
+
+  # structure output
+  if (output == "tidy"){
+    out$variable <- "adi"
+    names(out)[names(out) == "ADI"] <- "estimate"
+    out <- subset(out, select = c(GEOID, NAME, variable, estimate))
+  }
+
+  # return output
+  return(out)
+
+}
+
+# Get ADI3 ####
+get_adi3 <- function(geography, output, year, state, county, debug){
+
+  # global variables
+  GEOID = NAME = variable = estimate = Financial_Strength =
+    Economic_Hardship_and_Inequality = Educational_Attainment = NULL
+
+  # call sociome
+  if (debug == FALSE){
+    out <- suppressMessages(sociome::get_adi(geography = geography,
+                                             state = state,
+                                             county = county,
+                                             year = year,
+                                             dataset = "acs5"))
+  } else if (debug == TRUE){
+    out <- dep_internal$test_data$test_adi
+  }
+
+  # remove ADI3
+  out <- subset(out, select = -ADI)
+
+  # adjust col names
+  names(out)[names(out) == "Financial_Strength"] <- "adi3_finance"
+  names(out)[names(out) == "Economic_Hardship_and_Inequality"] <- "adi3_econ"
+  names(out)[names(out) == "Educational_Attainment"] <- "adi3_edu"
+
+  # structure output
+  if (output == "tidy"){
+
+
+    names <- setdiff(names(out), c("GEOID", "NAME"))
+    out <- tidyr::pivot_longer(out, cols = names, names_to = "variable",
+                               names_sep = "_", values_to = "estimate")
+  }
+
+  # return output
+  return(out)
+
+}
+
 # Get SVI ####
 get_svi <- function(geography, year, output, state, county, keep_subscales,
                     keep_components, debug){
@@ -45,9 +120,11 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
     RPL_THEME3 = RPL_THEME4 = SPL_THEMES = GEOID = SVI = NULL
 
   ## download variables
-  if (keep_components == TRUE){
-    pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
-                       debug = debug)
+  pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
+                     debug = debug)
+
+  if (keep_components == FALSE){
+    pri <- subset(pri, select = c(GEOID, NAME))
   }
 
   theme1 <- get_svi_ses(geography = geography, year = year, state = state, county = county,
@@ -60,11 +137,7 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
                         keep_components = keep_components, debug = debug)
 
   ## combine
-  if (keep_components == TRUE){
-    theme1 <- merge(x = pri, y = theme1, by = "GEOID", all.x = TRUE)
-  }
-
-  out <- merge(x = theme1, y = theme2, by = "GEOID", all.x = TRUE)
+  out <- merge(x = pri, y = theme1, by = "GEOID", all.x = TRUE)
   out <- merge(x = out, y = theme2, by = "GEOID", all.x = TRUE)
   out <- merge(x = out, y = theme3, by = "GEOID", all.x = TRUE)
   out <- merge(x = out, y = theme4, by = "GEOID", all.x = TRUE)
@@ -80,17 +153,19 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
   ## keep components / keep subscales
   if (keep_components == FALSE){
     if (keep_subscales == FALSE){
-      out <- subset(out, select = c(GEOID, SVI))
+      out <- subset(out, select = c(GEOID, NAME, SVI))
     } else if (keep_subscales == TRUE){
-      out <- subset(out, select = c(GEOID, SVI, RPL_THEME1, RPL_THEME2, RPL_THEME3, RPL_THEME4))
+      out <- subset(out, select = c(GEOID, NAME, SVI, RPL_THEME1, RPL_THEME2, RPL_THEME3, RPL_THEME4))
     }
 
-    names <- setdiff(names(out), "GEOID")
+    names <- setdiff(names(out), c("GEOID", "NAME"))
   }
 
   ## convert to long optionally
   if (output == "tidy"){
     out <- tidyr::pivot_longer(out, cols = names, names_to = "variable", values_to = "estimate")
+  } else {
+    out <- tibble::as_tibble(out)
   }
 
   ## return output
@@ -118,6 +193,7 @@ get_svi_pri <- function(geography, year, state, county, debug){
   ## process components
   out <- dplyr::select(out,
                        GEOID,
+                       NAME,
                        E_TOTPOP = S0601_C01_001E,
                        M_TOTPOP = S0601_C01_001M,
                        E_HU = DP04_0001E,
@@ -291,7 +367,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
     e <- suppressMessages(tidycensus::get_acs(geography = geography,
                                               state = state, county = county,
                                               table = dep_internal$request_vars$svi19$eng_table,
-                                              output = "wide", year = year, suvey = "acs5"))
+                                              output = "tidy", year = year, suvey = "acs5"))
   } else if (debug == TRUE){
     m <- dep_internal$test_data$test_svi$test_svi_msl
     e <- dep_internal$test_data$test_svi$test_svi_eng
@@ -299,7 +375,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
 
   ## process components
   ### subset e2
-  e <- dplyr::filter(e, variable %in% eng_vars)
+  e <- dplyr::filter(e, variable %in% dep_internal$request_vars$svi19$eng_vars)
   e <- dplyr::group_by(e, GEOID)
   e <- dplyr::summarise(e, E_LIMENG = sum(estimate))
 

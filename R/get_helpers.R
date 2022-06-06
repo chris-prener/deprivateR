@@ -42,7 +42,7 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
 
   # global bindings
   SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = RPL_THEME1 = RPL_THEME2 =
-    RPL_THEME3 = RPL_THEME4 = SPL_THEMES = NULL
+    RPL_THEME3 = RPL_THEME4 = SPL_THEMES = GEOID = SVI = NULL
 
   ## download variables
   if (keep_components == TRUE){
@@ -61,12 +61,13 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
 
   ## combine
   if (keep_components == TRUE){
-    theme1 <- dplyr::left_join(pri, theme1, by = "GEOID")
+    theme1 <- merge(x = pri, y = theme1, by = "GEOID", all.x = TRUE)
   }
 
-  out <- dplyr::left_join(theme1, theme2, by = "GEOID")
-  out <- dplyr::left_join(out, theme3, by = "GEOID")
-  out <- dplyr::left_join(out, theme4, by = "GEOID")
+  out <- merge(x = theme1, y = theme2, by = "GEOID", all.x = TRUE)
+  out <- merge(x = out, y = theme2, by = "GEOID", all.x = TRUE)
+  out <- merge(x = out, y = theme3, by = "GEOID", all.x = TRUE)
+  out <- merge(x = out, y = theme4, by = "GEOID", all.x = TRUE)
 
   ## calculate svi
   out <- dplyr::mutate(out, SPL_THEMES = SPL_THEME1 + SPL_THEME2 + SPL_THEME3 + SPL_THEME4)
@@ -77,8 +78,20 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
                        RPL_THEME4 = RPL_THEME4*100)
 
   ## keep components / keep subscales
+  if (keep_components == FALSE){
+    if (keep_subscales == FALSE){
+      out <- subset(out, select = c(GEOID, SVI))
+    } else if (keep_subscales == TRUE){
+      out <- subset(out, select = c(GEOID, SVI, RPL_THEME1, RPL_THEME2, RPL_THEME3, RPL_THEME4))
+    }
+
+    names <- setdiff(names(out), "GEOID")
+  }
 
   ## convert to long optionally
+  if (output == "tidy"){
+    out <- tidyr::pivot_longer(out, cols = names, names_to = "variable", values_to = "estimate")
+  }
 
   ## return output
   return(out)

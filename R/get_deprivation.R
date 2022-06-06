@@ -76,14 +76,14 @@ get_deprivation <- function(geography, variables,
     }
 
     ## download data
-    out_gini <- get_gini(geography = geography, output = output, year = year,
+    out <- get_gini(geography = geography, output = output, year = year,
                          state = state, county = county, geometry = TRUE,
                          keep_geo_vars = keep_geo_vars, shift_geo = shift_geo,
                          debug = debug)
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
-      out_gini <- subset(out_gini, select = -c(E_GINI, M_GINI))
+      out <- subset(out, select = -c(E_GINI, M_GINI))
     }
 
     ## tidy up geo vars
@@ -91,37 +91,42 @@ get_deprivation <- function(geography, variables,
 
       ### land and water area
       if (units == "mi"){
-        out_gini$ALAND_SQMI <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "mi2")
-        out_gini$AWATER_SQMI <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2")
+        out$ALAND_SQMI <- measurements::conv_unit(out$ALAND, from = "m2", to = "mi2")
+        out$AWATER_SQMI <- measurements::conv_unit(out$AWATER, from = "m2", to = "mi2")
       } else if (units == "km"){
-        out_gini$ALAND_SQKM <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "km")
-        out_gini$AWATER_SQKM <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km")
+        out$ALAND_SQKM <- measurements::conv_unit(out$ALAND, from = "m2", to = "km")
+        out$AWATER_SQKM <- measurements::conv_unit(out$AWATER, from = "m2", to = "km")
       }
 
-      out_gini <- dplyr::select(out_gini, -c(ALAND, AWATER))
+      out <- subset(out, select = -c(ALAND, AWATER))
 
       ### fix variable names
       if (geography %in% c("state", "county")){
-        names(out_gini)[names(out_gini) == "NAME.x"] <- "NAME"
-        out_gini <- subset(out_gini, select = -NAME.y)
+        names(out)[names(out) == "NAME.x"] <- "NAME"
+        out <- subset(out, select = -NAME.y)
       }
 
     }
 
   } else if (geometry == FALSE & "gini" %in% variables == TRUE){
-    out_gini <- get_gini(geography = geography, output = output, year = year,
+    out <- get_gini(geography = geography, output = output, year = year,
                          state = state, county = county, debug = debug)
   }
 
   if ("svi" %in% variables == TRUE){
+    ## pull data
     out_svi <- get_svi(geography = geography, output = output, year = year,
                        state = state, county = county,
                        keep_subscales = keep_subscales,
                        keep_components = keep_components)
-  }
 
-  # combine output
-  out <- out_gini
+    ## combine
+    if (output == "tidy"){
+      out <- rbind(out, out_svi)
+    } else if (output == "wide"){
+      out <- merge(x = out, y = out_svi, by = "GEOID", all.x = TRUE)
+    }
+  }
 
   # move geometry to the end
   if (geometry == TRUE){
@@ -129,7 +134,7 @@ get_deprivation <- function(geography, variables,
   }
 
   # order output
-  out <- dplyr::arrange(out, GEOID)
+  out <- out[order("GEOID"), , drop = FALSE]
 
   # return output
   return(out)

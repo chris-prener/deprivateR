@@ -84,7 +84,7 @@ get_deprivation <- function(geography, variables,
 
     ## remove gini variables if necessary
     if ("gini" %in% variables == FALSE){
-      out_gini <- dplyr::select(out_gini, -c(E_GINI, M_GINI))
+      out_gini <- subset(out_gini, select = -c(E_GINI, M_GINI))
     }
 
     ## tidy up geo vars
@@ -92,23 +92,19 @@ get_deprivation <- function(geography, variables,
 
       ### land and water area
       if (units == "mi"){
-        out_gini <- dplyr::mutate(out_gini,
-                             ALAND_SQMI = measurements::conv_unit(ALAND, from = "m2", to = "mi2"),
-                             AWATER_SQMI = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2"),
-                             .after = LSAD)
+        out_gini$ALAND_SQMI <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "mi2")
+        out_gini$AWATER_SQMI <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "mi2")
       } else if (units == "km"){
-        out_gini <- dplyr::mutate(out_gini,
-                             ALAND_SQKM = measurements::conv_unit(ALAND, from = "m2", to = "km"),
-                             AWATER_SQKM = measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km"),
-                             .after = LSAD)
+        out_gini$ALAND_SQKM <- measurements::conv_unit(out_gini$ALAND, from = "m2", to = "km")
+        out_gini$AWATER_SQKM <- measurements::conv_unit(out_gini$AWATER, from = "m2", to = "km")
       }
 
       out_gini <- dplyr::select(out_gini, -c(ALAND, AWATER))
 
       ### fix variable names
       if (geography == "state"){
-        out_gini <- dplyr::rename(out_gini, NAME = NAME.x)
-        out_gini <- dplyr::select(out_gini, -NAME.y)
+        names(out_gini)[names(out_gini) == "NAME.x"] <- "NAME"
+        out_gini <- subset(out_gini, select = -NAME.y)
       }
 
     }
@@ -130,7 +126,10 @@ get_deprivation <- function(geography, variables,
 
   # move geometry to the end
   if (geometry == TRUE){
-    out <- dplyr::relocate(out, geometry, .after = dplyr::last_col())
+    names <- names(out)
+    names <- names[! names %in% "geometry"]
+    names <- c(names, "geometry")
+    out <- out[, names]
   }
 
   # order output

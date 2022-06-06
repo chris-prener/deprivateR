@@ -95,12 +95,12 @@ get_svi_pri <- function(geography, year, state, county, debug){
     DP04_0001M = DP02_0001M = NULL
 
   ## download
-  if (dots$debug == FALSE){
+  if (debug == FALSE){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                             state = state, county = county,
                             variables = dep_internal$request_vars$svi19$pri_vars,
                             output = "wide", year = year, suvey = "acs5"))
-  } else if (dots$debug == TRUE){
+  } else if (debug == TRUE){
     out <- dep_internal$test_data$test_svi$test_svi_pri
   }
 

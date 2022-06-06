@@ -150,4 +150,4 @@ dep_internal <- list(
 rm(request_vars, test_gini, test_svi)
 
 # Save Internal Data Object ####
-save(dep_internal, file = "R/sysdata.rda", version = 2)
+save(dep_internal, file = "R/sysdata.rda", version = 2, compress = "xz")

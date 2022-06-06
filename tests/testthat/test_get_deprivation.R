@@ -1,5 +1,7 @@
 context("test get_deprivation function")
 
+library(sf)
+
 # test inputs ------------------------------------------------
 
 test_that("correctly specified functions execute without error", {

@@ -7,7 +7,7 @@
 get_deprivation(geography, variables, keep_subscales = FALSE,
     keep_components = FALSE, output = "tidy", year, state = NULL,
     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-    units)
+    units, ...)
 }
 \arguments{
 \item{geography}{A character scalar; one of \code{"state"}, \code{"county"}, or
@@ -49,8 +49,10 @@ Hawaii will appear in their cartographically correct locations. If
 \code{TRUE}, Alaska and Hawaii will be shifted south to facilitate
 more straightforward national mapping.}
 
-\item{units}{A character scalar; either \code{"mi"} (miles) or \code{"km"}
-(kilometers)}
+\item{units}{A character scalar; either \code{"mi"} (default; miles) or
+\code{"km"} (kilometers)}
+
+\item{...}{Additional parameters for debugging and testing \code{deprivateR}}
 }
 \description{
 Calculates various measures of deprivation.

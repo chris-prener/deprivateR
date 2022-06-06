@@ -47,8 +47,7 @@ get_deprivation <- function(geography, variables,
                             units, ...){
 
   # global bindings
-  ALAND = AWATER = NAME.x = NAME.y = estimate = E_GINI = M_GINI = moe =
-    variable = LSAD = GEOID = NULL
+  ALAND = AWATER = GEOID = E_GINI = M_GINI = NAME.y = NULL
 
   # evaluate debugging mode
   dots <- list(...)
@@ -102,7 +101,7 @@ get_deprivation <- function(geography, variables,
       out_gini <- dplyr::select(out_gini, -c(ALAND, AWATER))
 
       ### fix variable names
-      if (geography == "state"){
+      if (geography %in% c("state", "county")){
         names(out_gini)[names(out_gini) == "NAME.x"] <- "NAME"
         out_gini <- subset(out_gini, select = -NAME.y)
       }
@@ -126,10 +125,7 @@ get_deprivation <- function(geography, variables,
 
   # move geometry to the end
   if (geometry == TRUE){
-    names <- names(out)
-    names <- names[! names %in% "geometry"]
-    names <- c(names, "geometry")
-    out <- out[, names]
+    out <- out[c(setdiff(names(out), "geometry"), "geometry")]
   }
 
   # order output

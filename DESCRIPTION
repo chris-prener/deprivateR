@@ -3,7 +3,8 @@ Title: Measures of Deprivation
 Version: 0.1.0.9000
 Authors@R: c(
     person("Christopher", "Prener", ,"chris.prener@gmail.com", c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-4310-9888"))
+    comment = c(ORCID = "0000-0002-4310-9888")),
+    person("Timothy", "Wiemken", , role = "aut")
     )
 Description: Provides a unified framework to building deprivation measures
     and accessing related data from the U.S. Census Bureau such as Gini

@@ -3,9 +3,6 @@ get_gini <- function(geography, output, year, state, county,
                      geometry = FALSE, keep_geo_vars = FALSE,
                      shift_geo = FALSE, debug){
 
-  # global bindings
-  B19083_001E = B19083_001M = NULL
-
   # call tidycensus
   if (debug == FALSE){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
@@ -30,7 +27,8 @@ get_gini <- function(geography, output, year, state, county,
   if (output == "tidy"){
     out$variable <- "gini"
   } else if (output == "wide"){
-    out <- dplyr::rename(out, E_GINI = B19083_001E, M_GINI = B19083_001M)
+    names(out)[names(out) == "B19083_001E"] <- "E_GINI"
+    names(out)[names(out) == "B19083_001M"] <- "M_GINI"
   }
 
   # return output

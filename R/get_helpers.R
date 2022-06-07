@@ -162,14 +162,24 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
   out <- merge(x = out, y = theme4, by = "GEOID", all.x = TRUE)
 
   ## calculate svi
-  out <- dplyr::mutate(out, SPL_THEMES = SPL_THEME1 + SPL_THEME2 + SPL_THEME3 + SPL_THEME4)
+  #out <- dplyr::mutate(out, SPL_THEMES = SPL_THEME1 + SPL_THEME2 + SPL_THEME3 + SPL_THEME4)
+  out$SPL_THEMES <- out$SPL_THEME1 + out$SPL_THEME2 + out$SPL_THEME3 + out$SPL_THEME4
+  
   # out <-
-  out <- dplyr::mutate(out, SVI = dplyr::percent_rank(SPL_THEMES)*100)
-  out <- dplyr::mutate(out, SVI_RPL_THEME1 = SVI_RPL_THEME1*100,
-                       SVI_RPL_THEME2 = SVI_RPL_THEME2*100,
-                       SVI_RPL_THEME3 = SVI_RPL_THEME3*100,
-                       SVI_RPL_THEME4 = SVI_RPL_THEME4*100)
+  #out <- dplyr::mutate(out, SVI = dplyr::percent_rank(SPL_THEMES)*100)
+  rnk_fxn <- function(x){
+    return(rank(x, na.last = "keep", ties.method = "min") - 1)/(sum(!is.na(x)) - 1)
+  }
+    out$SVI = rnk_fxn(out$SPL_THEMES)
 
+  # out <- dplyr::mutate(out, SVI_RPL_THEME1 = SVI_RPL_THEME1*100,
+  #                      SVI_RPL_THEME2 = SVI_RPL_THEME2*100,
+  #                      SVI_RPL_THEME3 = SVI_RPL_THEME3*100,
+  #                      SVI_RPL_THEME4 = SVI_RPL_THEME4*100)
+  varz <- c("SVI_RPL_THEME1", "SVI_RPL_THEME2", "SVI_RPL_THEME3", "SVI_RPL_THEME4")
+    out[,varz] <- lapply(out[,varz], function(x) x*100)
+      rm(varz)
+  
   ## keep components / keep subscales
   if (keep_components == FALSE){
     if (keep_subscales == FALSE){
@@ -218,15 +228,19 @@ get_svi_pri <- function(geography, year, state, county, debug){
   }
 
   ## process components
-  out <- dplyr::select(out,
-                       GEOID,
-                       NAME,
-                       E_TOTPOP = S0601_C01_001E,
-                       M_TOTPOP = S0601_C01_001M,
-                       E_HU = DP04_0001E,
-                       M_HU = DP04_0001M,
-                       E_HH = DP02_0001E,
-                       M_HH = DP02_0001M)
+  # out <- dplyr::select(out,
+  #                      GEOID,
+  #                      NAME,
+  #                      E_TOTPOP = S0601_C01_001E,
+  #                      M_TOTPOP = S0601_C01_001M,
+  #                      E_HU = DP04_0001E,
+  #                      M_HU = DP04_0001M,
+  #                      E_HH = DP02_0001E,
+  #                      M_HH = DP02_0001M)
+  varz <- c("S0601_C01_001E", "S0601_C01_001M", "DP04_0001E", "DP04_0001M", "DP02_0001E", "DP02_0001M")
+    out <- subset(out, select = c("GEOID", "NAME", varz))
+      colnames(out)[varz] <- c("E_TOTPOP", "M_TOTPOP", "E_HU", "M_HU", "E_HH", "M_HH")
+        rm(varz)
 
   ## return output
   return(out)
@@ -266,7 +280,7 @@ get_svi_ses <- function(geography, year, state, county, keep_components, debug){
     D_POV = B17001_001E,
     DM_POV = B17001_001M,
     E_POV = B17001_002E,
-    M_POV = B17001_001M,
+    M_POV = B17001_002M,
     D_UNEMP = DP03_0001E,
     DM_UNEMP = DP03_0001M,
     E_UNEMP = DP03_0005E,
@@ -278,7 +292,27 @@ get_svi_ses <- function(geography, year, state, county, keep_components, debug){
     E_NOHSDP = B06009_002E,
     M_NOHSDP = B06009_002M
   )
-
+  
+  
+  ### BEGIN HERE JUN 8 2022
+  # varz <- c("B17001_001E", "B17001_001M", 
+  #           "B17001_002E", "B17001_002M", 
+  #           "DP03_0001E", "DP03_0001M",
+  #           "DP03_0005E", "DP03_0005M",
+  #           "B19301_001E", "B19301_001M",
+  #           "B06009_001E", "B06009_001M",
+  #           "B06009_002E", "B06009_002M")
+  #   out <- subset(out, select = c("GEOID", varz))
+  #     colnames(out)[varz] <- c("D_POV", "DM_POV", 
+  #                          "E_POV", "M_POV", 
+  #                          "D_UNEMP", "DM_UNEMP",
+  #                          "E_UNEMP", "M_UNEMP",
+  #                          "E_PCI", "M_PCI",
+  #                          "D_NOHSDP", "DM_NOHSDP",
+  #                          "E_NOHSDP", "E_NOHSDP")
+  #         rm(varz)
+  
+  
   ### calculate theme 1
   out <- dplyr::mutate(out, EP_POV = E_POV/D_POV*100,
                        EPL_POV = dplyr::percent_rank(EP_POV),
@@ -546,7 +580,8 @@ get_svi_htt <- function(geography, year, state, county, keep_components, debug){
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, SPL_THEME4, SVI_RPL_THEME4)
+    #out <- dplyr::select(out, GEOID, SPL_THEME4, SVI_RPL_THEME4)
+    out <- subset(out, select = c("GEOID", "SPL_THEME4", "SVI_RPL_THEME4"))
   }
 
   ## return output

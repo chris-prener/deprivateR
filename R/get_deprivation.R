@@ -200,8 +200,9 @@ get_deprivation <- function(geography, variables,
   }
 
   # order output
-  out <- dplyr::arrange(out, GEOID)
-
+  #out <- dplyr::arrange(out, GEOID)
+ 
+  out <- out[order(out$GEOID, decreasing = T),]
   # return output
   return(out)
 

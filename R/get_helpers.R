@@ -4,14 +4,21 @@ get_gini <- function(geography, output, year, state, county,
                      shift_geo = FALSE, debug){
 
   # call tidycensus
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                                                 table = dep_internal$request_vars$gini10,
                                                 output = output, year = year,
                                                 state = state, county = county, survey = "acs5",
                                                 geometry = geometry, keep_geo_vars = keep_geo_vars,
                                                 shift_geo = FALSE))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- tidycensus::get_acs(geography = geography,
+                               table = dep_internal$request_vars$gini10,
+                               output = output, year = year,
+                               state = state, county = county, survey = "acs5",
+                               geometry = geometry, keep_geo_vars = keep_geo_vars,
+                               shift_geo = FALSE)
+  } else if (debug == "test"){
     if (geometry == TRUE & keep_geo_vars == FALSE){
       out <- dep_internal$test_data$test_gini$test_gini_sf
     } else if (geometry == TRUE & keep_geo_vars == TRUE) {
@@ -44,13 +51,19 @@ get_adi <- function(geography, output, year, state, county, debug){
     Economic_Hardship_and_Inequality = Educational_Attainment = NULL
 
   # call sociome
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(sociome::get_adi(geography = geography,
                                              state = state,
                                              county = county,
                                              year = year,
                                              dataset = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- sociome::get_adi(geography = geography,
+                            state = state,
+                            county = county,
+                            year = year,
+                            dataset = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_adi
   }
 
@@ -78,13 +91,19 @@ get_adi3 <- function(geography, output, year, state, county, debug){
   ADI = NULL
 
   # call sociome
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(sociome::get_adi(geography = geography,
                                              state = state,
                                              county = county,
                                              year = year,
                                              dataset = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- sociome::get_adi(geography = geography,
+                            state = state,
+                            county = county,
+                            year = year,
+                            dataset = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_adi
   }
 
@@ -117,7 +136,7 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
 
   # global bindings
   SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = SVI_RPL_THEME1 = SVI_RPL_THEME2 =
-    SVI_RPL_THEME3 = SVI_RPL_THEME4 = SPL_THEMES = GEOID = SVI = NULL
+    SVI_RPL_THEME3 = SVI_RPL_THEME4 = SPL_THEMES = GEOID = SVI = NAME = NULL
 
   ## download variables
   pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
@@ -181,15 +200,20 @@ get_svi_pri <- function(geography, year, state, county, debug){
 
   ### global bindings
   GEOID = S0601_C01_001E = DP04_0001E = DP02_0001E = S0601_C01_001M =
-    DP04_0001M = DP02_0001M = NULL
+    DP04_0001M = DP02_0001M = NAME = NULL
 
   ## download
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                             state = state, county = county,
                             variables = dep_internal$request_vars$svi19$pri_vars,
                             output = "wide", year = year, suvey = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- tidycensus::get_acs(geography = geography,
+                              state = state, county = county,
+                              variables = dep_internal$request_vars$svi19$pri_vars,
+                              output = "wide", year = year, suvey = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_svi$test_svi_pri
   }
 
@@ -221,12 +245,17 @@ get_svi_ses <- function(geography, year, state, county, keep_components, debug){
     EPL_PCI = EPL_NOHSDP = SPL_THEME1 = SVI_RPL_THEME1 = NULL
 
   ## download
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                                                 state = state, county = county,
                                                 variables = dep_internal$request_vars$svi19$ses_vars,
                                                 output = "wide", year = year, suvey = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- tidycensus::get_acs(geography = geography,
+                        state = state, county = county,
+                        variables = dep_internal$request_vars$svi19$ses_vars,
+                        output = "wide", year = year, suvey = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_svi$test_svi_ses
   }
 
@@ -288,12 +317,17 @@ get_svi_hhd <- function(geography, year, state, county, keep_components, debug){
     EPL_SNGPNT = SPL_THEME2 = SVI_RPL_THEME2 = NULL
 
   ## download
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                                                 state = state, county = county,
                                                 variables = dep_internal$request_vars$svi19$hhd_vars,
                                                 output = "wide", year = year, suvey = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- tidycensus::get_acs(geography = geography,
+                        state = state, county = county,
+                        variables = dep_internal$request_vars$svi19$hhd_vars,
+                        output = "wide", year = year, suvey = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_svi$test_svi_hhd
   }
 
@@ -362,7 +396,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
     SPL_THEME3 = SVI_RPL_THEME3 = NULL
 
   ## download
-  if (debug == FALSE){
+  if (debug == "live"){
     m <- suppressMessages(tidycensus::get_acs(geography = geography,
                                                 state = state, county = county,
                                                 variables = dep_internal$request_vars$svi19$msl_vars,
@@ -371,7 +405,16 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
                                               state = state, county = county,
                                               table = dep_internal$request_vars$svi19$eng_table,
                                               output = "tidy", year = year, suvey = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    m <- tidycensus::get_acs(geography = geography,
+                             state = state, county = county,
+                             variables = dep_internal$request_vars$svi19$msl_vars,
+                             output = "wide", year = year, suvey = "acs5")
+    e <- tidycensus::get_acs(geography = geography,
+                             state = state, county = county,
+                             table = dep_internal$request_vars$svi19$eng_table,
+                             output = "tidy", year = year, suvey = "acs5")
+  } else if (debug == "test"){
     m <- dep_internal$test_data$test_svi$test_svi_msl
     e <- dep_internal$test_data$test_svi$test_svi_eng
   }
@@ -434,12 +477,17 @@ get_svi_htt <- function(geography, year, state, county, keep_components, debug){
     EPL_GROUPQ = SPL_THEME4 = SVI_RPL_THEME4 = NULL
 
   ## download
-  if (debug == FALSE){
+  if (debug == "live"){
     out <- suppressMessages(tidycensus::get_acs(geography = geography,
                                                 state = state, county = county,
                                                 variables = dep_internal$request_vars$svi19$htt_vars,
                                                 output = "wide", year = year, suvey = "acs5"))
-  } else if (debug == TRUE){
+  } else if (debug == "messages"){
+    out <- tidycensus::get_acs(geography = geography,
+                               state = state, county = county,
+                               variables = dep_internal$request_vars$svi19$htt_vars,
+                               output = "wide", year = year, suvey = "acs5")
+  } else if (debug == "test"){
     out <- dep_internal$test_data$test_svi$test_svi_htt
   }
 

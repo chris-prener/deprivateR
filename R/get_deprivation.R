@@ -5,7 +5,7 @@
 #' @usage get_deprivation(geography, variables, keep_subscales = FALSE,
 #'     keep_components = FALSE, output=, year, state = NULL,
 #'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-#'     units, ...)
+#'     units, debug = NULL)
 #'
 #' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
 #'     \code{"tract"}
@@ -37,26 +37,21 @@
 #'     more straightforward national mapping.
 #' @param units A character scalar; either \code{"mi"} (default; miles) or
 #'     \code{"km"} (kilometers)
-#' @param ... Additional parameters for debugging and testing \code{deprivateR}
+#' @param debug Additional parameters for debugging and testing
+#'     \code{deprivateR}. The two styles are \code{"messages"} (will print
+#'     all messages from \code{tidycensus} and \code{sociome}) and
+#'     \code{"test"} (will use built-in data instead of making live API
+#'     calls).
 #'
 #' @export
 get_deprivation <- function(geography, variables,
                             keep_subscales = FALSE, keep_components = FALSE,
                             output, year, state = NULL, county = NULL,
                             geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-                            units, ...){
+                            units, debug = NULL){
 
   # global bindings
-  ALAND = AWATER = GEOID = E_GINI = M_GINI = NAME.y = NULL
-
-  # evaluate debugging mode
-  dots <- list(...)
-
-  if (is.null(dots$debug) == TRUE){
-    debug <- FALSE
-  } else if (dots$debug == TRUE){
-    debug <- TRUE
-  }
+  ALAND = AWATER = GEOID = E_GINI = M_GINI = NAME = NAME.x = NAME.y = NULL
 
   # check inputs
   if (missing(geography)) {
@@ -65,6 +60,10 @@ get_deprivation <- function(geography, variables,
 
   if (geography %in% c("state", "county", "tract") == FALSE){
     stop("Invalid level of geography provided. Please choose one of: 'state', 'county', or 'tract'.")
+  }
+
+  if (is.null(debug)){
+    debug <- "live"
   }
 
   # optionally add geometry, otherwise only return gini if requested

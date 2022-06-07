@@ -7,7 +7,7 @@
 get_deprivation(geography, variables, keep_subscales = FALSE,
     keep_components = FALSE, output=, year, state = NULL,
     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
-    units, ...)
+    units, debug = NULL)
 }
 \arguments{
 \item{geography}{A character scalar; one of \code{"state"}, \code{"county"}, or
@@ -52,7 +52,11 @@ more straightforward national mapping.}
 \item{units}{A character scalar; either \code{"mi"} (default; miles) or
 \code{"km"} (kilometers)}
 
-\item{...}{Additional parameters for debugging and testing \code{deprivateR}}
+\item{debug}{Additional parameters for debugging and testing
+\code{deprivateR}. The two styles are \code{"messages"} (will print
+all messages from \code{tidycensus} and \code{sociome}) and
+\code{"test"} (will use built-in data instead of making live API
+calls).}
 }
 \description{
 Calculates various measures of deprivation.

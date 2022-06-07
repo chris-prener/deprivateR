@@ -29,6 +29,11 @@ get_deprivation(geography = "county", variables = c("gini", "svi", "adi", "adi3"
                 output = "wide", state = "MO", year = 2019,
                 keep_subscales = FALSE, debug = "test")
 
+
+
+#
+get_deprivation(geography = "tract", variables = "adi3", output = "wide", state = "MO", county = 510, year = 2019, geometry = TRUE)
+
 # geometry
 get_deprivation(geography = "county", variables = "svi", state = "MO", year = 2019, output = "wide", geometry = TRUE, debug = "test")
 get_deprivation(geography = "county", variables = c("gini", "svi"), state = "MO", year = 2019, output = "wide", geometry = TRUE, debug = "test")

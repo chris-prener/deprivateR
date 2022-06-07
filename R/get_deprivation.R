@@ -141,9 +141,63 @@ get_deprivation <- function(geography, variables,
     }
   }
 
+  ## get ADI scores
+  if ("adi" %in% variables == TRUE){
+    ## pull data
+    out_adi <- get_adi(geography = geography, output = output, year = year,
+                       state = state, county = county, debug = debug)
+
+    ## combine
+    prior_vars <- "gini" %in% variables == TRUE | "svi" %in% variables == TRUE
+
+    if (geometry == TRUE){
+      out_adi <- subset(out_adi, select = -NAME)
+      out <- merge(x = out, y = out_adi, by = "GEOID", all.x = TRUE)
+    } else if (geometry == FALSE & prior_vars == TRUE){
+      if (output == "tidy"){
+        out_adi$moe <- NA
+        out <- rbind(out, out_adi)
+      } else if (output == "wide"){
+        out_adi <- subset(out_adi, select = -NAME)
+        out <- merge(x = out, y = out_adi, by = "GEOID", all.x = TRUE)
+      }
+    } else {
+      out <- out_adi
+    }
+
+  }
+
+  ## get ADI3 scores
+  if ("adi3" %in% variables == TRUE){
+    ## pull data
+    out_adi3 <- get_adi3(geography = geography, output = output, year = year,
+                       state = state, county = county, debug = debug)
+
+    ## combine
+    prior_vars <- "gini" %in% variables == TRUE | "svi" %in% variables == TRUE | "adi" %in% variables == TRUE
+
+    if (geometry == TRUE){
+      out_adi3 <- subset(out_adi3, select = -NAME)
+      out <- merge(x = out, y = out_adi3, by = "GEOID", all.x = TRUE)
+    } else if (geometry == FALSE & prior_vars == TRUE){
+      if (output == "tidy"){
+        out_adi3$moe <- NA
+        out <- rbind(out, out_adi3)
+      } else if (output == "wide"){
+        out_adi3 <- subset(out_adi3, select = -NAME)
+        out <- merge(x = out, y = out_adi3, by = "GEOID", all.x = TRUE)
+      }
+    } else {
+      out <- out_adi3
+    }
+
+  }
+
   # move geometry to the end
   if (geometry == TRUE){
     out <- out[c(setdiff(names(out), "geometry"), "geometry")]
+  } else {
+    out <- tibble::as_tibble(out)
   }
 
   # order output

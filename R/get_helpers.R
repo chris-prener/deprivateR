@@ -75,8 +75,7 @@ get_adi <- function(geography, output, year, state, county, debug){
 get_adi3 <- function(geography, output, year, state, county, debug){
 
   # global variables
-  GEOID = NAME = variable = estimate = Financial_Strength =
-    Economic_Hardship_and_Inequality = Educational_Attainment = NULL
+  ADI = NULL
 
   # call sociome
   if (debug == FALSE){
@@ -92,18 +91,19 @@ get_adi3 <- function(geography, output, year, state, county, debug){
   # remove ADI3
   out <- subset(out, select = -ADI)
 
-  # adjust col names
-  names(out)[names(out) == "Financial_Strength"] <- "adi3_finance"
-  names(out)[names(out) == "Economic_Hardship_and_Inequality"] <- "adi3_econ"
-  names(out)[names(out) == "Educational_Attainment"] <- "adi3_edu"
+  # rename columns
+  names(out)[names(out) == "Financial_Strength"] <- "ADI3_FINANCE"
+  names(out)[names(out) == "Economic_Hardship_and_Inequality"] <- "ADI3_ECON"
+  names(out)[names(out) == "Educational_Attainment"] <- "ADI3_EDU"
 
   # structure output
   if (output == "tidy"){
-
-
     names <- setdiff(names(out), c("GEOID", "NAME"))
     out <- tidyr::pivot_longer(out, cols = names, names_to = "variable",
-                               names_sep = "_", values_to = "estimate")
+                               values_to = "estimate")
+
+    out$variable <- tolower(out$variable)
+    out$variable <- sub(pattern = "_", " - ", out$variable)
   }
 
   # return output
@@ -116,8 +116,8 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
                     keep_components, debug){
 
   # global bindings
-  SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = RPL_THEME1 = RPL_THEME2 =
-    RPL_THEME3 = RPL_THEME4 = SPL_THEMES = GEOID = SVI = NULL
+  SPL_THEME1 = SPL_THEME2 = SPL_THEME3 = SPL_THEME4 = SVI_RPL_THEME1 = SVI_RPL_THEME2 =
+    SVI_RPL_THEME3 = SVI_RPL_THEME4 = SPL_THEMES = GEOID = SVI = NULL
 
   ## download variables
   pri <- get_svi_pri(geography = geography, year = year, state = state, county = county,
@@ -144,18 +144,19 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
 
   ## calculate svi
   out <- dplyr::mutate(out, SPL_THEMES = SPL_THEME1 + SPL_THEME2 + SPL_THEME3 + SPL_THEME4)
+  # out <-
   out <- dplyr::mutate(out, SVI = dplyr::percent_rank(SPL_THEMES)*100)
-  out <- dplyr::mutate(out, RPL_THEME1 = RPL_THEME1*100,
-                       RPL_THEME2 = RPL_THEME2*100,
-                       RPL_THEME3 = RPL_THEME3*100,
-                       RPL_THEME4 = RPL_THEME4*100)
+  out <- dplyr::mutate(out, SVI_RPL_THEME1 = SVI_RPL_THEME1*100,
+                       SVI_RPL_THEME2 = SVI_RPL_THEME2*100,
+                       SVI_RPL_THEME3 = SVI_RPL_THEME3*100,
+                       SVI_RPL_THEME4 = SVI_RPL_THEME4*100)
 
   ## keep components / keep subscales
   if (keep_components == FALSE){
     if (keep_subscales == FALSE){
       out <- subset(out, select = c(GEOID, NAME, SVI))
     } else if (keep_subscales == TRUE){
-      out <- subset(out, select = c(GEOID, NAME, SVI, RPL_THEME1, RPL_THEME2, RPL_THEME3, RPL_THEME4))
+      out <- subset(out, select = c(GEOID, NAME, SVI, SVI_RPL_THEME1, SVI_RPL_THEME2, SVI_RPL_THEME3, SVI_RPL_THEME4))
     }
 
     names <- setdiff(names(out), c("GEOID", "NAME"))
@@ -163,9 +164,11 @@ get_svi <- function(geography, year, output, state, county, keep_subscales,
 
   ## convert to long optionally
   if (output == "tidy"){
-    out <- tidyr::pivot_longer(out, cols = names, names_to = "variable", values_to = "estimate")
-  } else {
-    out <- tibble::as_tibble(out)
+    out <- tidyr::pivot_longer(out, cols = names, names_to = "variable",
+                               values_to = "estimate")
+
+    out$variable <- tolower(out$variable)
+    out$variable <- sub(pattern = "_", " - ", out$variable)
   }
 
   ## return output
@@ -215,7 +218,7 @@ get_svi_ses <- function(geography, year, state, county, keep_components, debug){
     B06009_001M = B06009_002E = B06009_002M = E_POV = D_POV = EP_POV =
     M_POV = E_UNEMP = D_UNEMP = EP_UNEMP = M_UNEMP = E_PCI = M_PCI =
     E_NOHSDP = D_NOHSDP = EP_NOHSDP = M_NOHSDP = EPL_POV = EPL_UNEMP =
-    EPL_PCI = EPL_NOHSDP = SPL_THEME1 = RPL_THEME1 = NULL
+    EPL_PCI = EPL_NOHSDP = SPL_THEME1 = SVI_RPL_THEME1 = NULL
 
   ## download
   if (debug == FALSE){
@@ -260,11 +263,11 @@ get_svi_ses <- function(geography, year, state, county, keep_components, debug){
                        EPL_NOHSDP = dplyr::percent_rank(EP_NOHSDP),
                        .after = M_NOHSDP)
   out <- dplyr::mutate(out, SPL_THEME1 = EPL_POV + EPL_UNEMP + EPL_PCI + EPL_NOHSDP,
-                       RPL_THEME1 = dplyr::percent_rank(SPL_THEME1))
+                       SVI_RPL_THEME1 = dplyr::percent_rank(SPL_THEME1))
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, SPL_THEME1, RPL_THEME1)
+    out <- dplyr::select(out, GEOID, SPL_THEME1, SVI_RPL_THEME1)
   }
 
   ## return output
@@ -282,7 +285,7 @@ get_svi_hhd <- function(geography, year, state, county, keep_components, debug){
     DP02_0001E = DP02_0001M = E_SNGPNT = M_SNGPNT = E_AGE65 = D_AGE = EP_AGE65 =
     M_AGE65 = E_AGE17 = EP_AGE17 = M_AGE17 = E_DISABL = D_DISABL = EP_DISABL =
     M_DISABL = D_SNGPNT = EP_SNGPNT = EPL_AGE65 = EPL_AGE17 = EPL_DISABL =
-    EPL_SNGPNT = SPL_THEME2 = RPL_THEME2 = NULL
+    EPL_SNGPNT = SPL_THEME2 = SVI_RPL_THEME2 = NULL
 
   ## download
   if (debug == FALSE){
@@ -337,11 +340,11 @@ get_svi_hhd <- function(geography, year, state, county, keep_components, debug){
                        .after = M_DISABL)
 
   out <- dplyr::mutate(out, SPL_THEME2 = EPL_AGE65 + EPL_AGE17 + EPL_DISABL + EPL_SNGPNT,
-                       RPL_THEME2 = dplyr::percent_rank(SPL_THEME2))
+                       SVI_RPL_THEME2 = dplyr::percent_rank(SPL_THEME2))
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, SPL_THEME2, RPL_THEME2)
+    out <- dplyr::select(out, GEOID, SPL_THEME2, SVI_RPL_THEME2)
   }
 
   ## return output
@@ -356,7 +359,7 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
   variable = eng_vars = GEOID = estimate = S0601_C01_001E = B01001H_001E =
     S0601_C01_001M = B01001H_001M = E_MINRTY = M_MINRTY = E_LIMENG =
     B16004_001E = EP_MINRTY = EP_LIMENG = ELP_MINRTY = EPL_LIMENG =
-    SPL_THEME3 = RPL_THEME3 = NULL
+    SPL_THEME3 = SVI_RPL_THEME3 = NULL
 
   ## download
   if (debug == FALSE){
@@ -404,11 +407,11 @@ get_svi_msl <- function(geography, year, state, county, keep_components, debug){
   out <- dplyr::select(out, -S0601_C01_001E, -B16004_001E)
 
   out <- dplyr::mutate(out, SPL_THEME3 = ELP_MINRTY + EPL_LIMENG,
-                       RPL_THEME3 = dplyr::percent_rank(SPL_THEME3))
+                       SVI_RPL_THEME3 = dplyr::percent_rank(SPL_THEME3))
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, SPL_THEME3, RPL_THEME3)
+    out <- dplyr::select(out, GEOID, SPL_THEME3, SVI_RPL_THEME3)
   }
 
   ## return output
@@ -428,13 +431,17 @@ get_svi_htt <- function(geography, year, state, county, keep_components, debug){
     EP_MOBILE = M_MOBILE = D_CROWD = EP_CROWD =
     E_NOVEH = D_NOVEH = EP_NOVEH = M_NOVEH = E_GROUPQ = EP_GROUPQ =
     M_GROUPQ = DP04_0001E = EPL_MUNIT = EPL_MOBILE = EPL_CROWD = EPL_NOVEH =
-    EPL_GROUPQ = SPL_THEME4 = RPL_THEME4 = NULL
+    EPL_GROUPQ = SPL_THEME4 = SVI_RPL_THEME4 = NULL
 
   ## download
-  out <- suppressMessages(tidycensus::get_acs(geography = geography,
-                                              state = state, county = county,
-                                              variables = dep_internal$request_vars$svi19$htt_vars,
-                                              output = "wide", year = year, suvey = "acs5"))
+  if (debug == FALSE){
+    out <- suppressMessages(tidycensus::get_acs(geography = geography,
+                                                state = state, county = county,
+                                                variables = dep_internal$request_vars$svi19$htt_vars,
+                                                output = "wide", year = year, suvey = "acs5"))
+  } else if (debug == TRUE){
+    out <- dep_internal$test_data$test_svi$test_svi_htt
+  }
 
   ## process components
   ### pre-process crowding vars
@@ -487,11 +494,11 @@ get_svi_htt <- function(geography, year, state, county, keep_components, debug){
   out <- dplyr::select(out, -DP04_0001E, -S0601_C01_001E)
 
   out <- dplyr::mutate(out, SPL_THEME4 = EPL_MUNIT + EPL_MOBILE + EPL_CROWD + EPL_NOVEH + EPL_GROUPQ,
-                       RPL_THEME4 = dplyr::percent_rank(SPL_THEME4))
+                       SVI_RPL_THEME4 = dplyr::percent_rank(SPL_THEME4))
 
   ## optionally drop components
   if (keep_components == FALSE){
-    out <- dplyr::select(out, GEOID, SPL_THEME4, RPL_THEME4)
+    out <- dplyr::select(out, GEOID, SPL_THEME4, SVI_RPL_THEME4)
   }
 
   ## return output

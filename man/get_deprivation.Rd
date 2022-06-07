@@ -5,7 +5,7 @@
 \title{Calculate Deprivation Measures}
 \usage{
 get_deprivation(geography, variables, keep_subscales = FALSE,
-    keep_components = FALSE, output = "tidy", year, state = NULL,
+    keep_components = FALSE, output=, year, state = NULL,
     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
     units, ...)
 }

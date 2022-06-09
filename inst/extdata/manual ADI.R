@@ -5,6 +5,7 @@
 library(dplyr)
 library(tidyr)
 library(tidycensus)
+library(sociome)
 
 # get variable names from sociome ----
 sociome::acs_vars %>%
@@ -17,9 +18,14 @@ sociome::acs_vars %>%
   pull() -> varz
 
 # get data from ACS/Tidycensus----
-test <- tidycensus::get_acs(geography = "county",
+test <- 
+  state.name %>%
+  purrr::map_df(~tidycensus::get_acs(geography = "block group",
                             variables = varz, 
-                            year = 2019)
+                            year = 2019, 
+                            state = .x)
+  )
+
 # clean and pivot, needed for calculate_adi ----
 test %>%
   select(-moe) %>%
@@ -30,6 +36,9 @@ test %>%
 
 # calculate ADI ----
 test3 <- calculate_adi(test2, keep_indicators = T)
+
+# write test3 ----
+#write.table(test3, "~/Desktop/testadi.csv", sep=",", row.names=F, na="")
 
 # Look at counties with missing data----
 ## GEOID of counties with missing data----

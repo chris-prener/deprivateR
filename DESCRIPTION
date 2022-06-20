@@ -6,8 +6,8 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-4310-9888")),
     person("Timothy", "Wiemken", , role = "aut")
     )
-Description: Provides a unified framework to building deprivation measures
-    and accessing related data from the U.S. Census Bureau such as Gini
+Description: Provides a unified framework to building ADI and SVI deprivation 
+    measures and accessing related data from the U.S. Census Bureau such as Gini
     coefficient data.
 Depends: R (>= 3.5)
 License: GPL-3
@@ -22,7 +22,8 @@ Imports:
     sociome,
     tibble,
     tidycensus,
-    tidyr
+    tidyr,
+    zippeR
 Suggests:
     covr,
     knitr,
@@ -30,4 +31,6 @@ Suggests:
     sf,
     testthat,
     tigris
+Remotes:
+    chris-prener/zippeR
 VignetteBuilder: knitr

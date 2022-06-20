@@ -5,7 +5,7 @@
 \title{Calculate Deprivation Measures}
 \usage{
 get_deprivation(geography, variables, keep_subscales = FALSE,
-    keep_components = FALSE, output=, year, state = NULL,
+    keep_components = FALSE, output, year, survey, state = NULL,
     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
     units, debug = NULL)
 }
@@ -57,6 +57,11 @@ more straightforward national mapping.}
 all messages from \code{tidycensus} and \code{sociome}) and
 \code{"test"} (will use built-in data instead of making live API
 calls).}
+
+\item{survey}{A character scalar representing the Census product. It can
+be any American Community Survey product (either \code{"acs1"},
+\code{"acs3"}, or \code{"acs5"}). Note that \code{"acs3"} was
+discontinued after 2013.}
 }
 \description{
 Calculates various measures of deprivation.

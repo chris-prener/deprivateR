@@ -25,7 +25,6 @@ hhd_vars <- c("S0101_C01_001", "S0101_C01_030", "S0101_C01_022", # selected age 
 msl_vars <- c("S0601_C01_001", # total population
               "B01001H_001", # white, non-hispanic population
               "B16004_001")
-eng_table <- "B16004"
 eng_vars <- c("B16004_007", "B16004_008", "B16004_012", "B16004_013", "B16004_017", "B16004_018", "B16004_022", "B16004_023",
               "B16004_029", "B16004_030", "B16004_034", "B16004_035", "B16004_039", "B16004_040", "B16004_044", "B16004_045",
               "B16004_051", "B16004_052", "B16004_056", "B16004_057", "B16004_061", "B16004_062", "B16004_066", "B16004_067")
@@ -47,12 +46,11 @@ svi19 <- list(
   ses_vars = ses_vars,
   hhd_vars = hhd_vars,
   msl_vars = msl_vars,
-  eng_table = eng_table,
   eng_vars = eng_vars,
   htt_vars = htt_vars
 )
 
-rm(pri_vars, ses_vars, hhd_vars, msl_vars, eng_table, eng_vars, htt_vars)
+rm(pri_vars, ses_vars, hhd_vars, msl_vars, eng_vars, htt_vars)
 
 ## Extras ####
 extras19 <- c("B13015_001", "B13015_002", # recent births

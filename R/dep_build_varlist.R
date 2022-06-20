@@ -1,4 +1,4 @@
-#' Export Variable Lists
+#' Create Variable Lists
 #'
 #' @description This function exports a vector or \code{tibble} containing
 #'     variables included in particular calls.
@@ -32,7 +32,7 @@ dep_build_varlist <- function(geography, variables, year, survey, output = "vect
 
   ## svi
   if ("svi" %in% variables == TRUE){
-    b <- unlist(dep_internal$request_vars$svi19)
+    b <- unlist(request_vars$svi19)
     svi <- TRUE
   } else {
     b <- NULL
@@ -41,7 +41,7 @@ dep_build_varlist <- function(geography, variables, year, survey, output = "vect
 
   ## adi
   if ("adi" %in% variables == TRUE){
-    c <- build_adi_varlist(geography, year = year, survey = survey, svi = svi, output = output)
+    c <- build_adi_varlist(geography, year = year, survey = survey, output = output)
   } else {
     c <- NULL
   }

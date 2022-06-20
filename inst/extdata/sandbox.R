@@ -29,3 +29,9 @@ rm(x)
 df <- calculate_adi(df)
 
 # DP02_0001 and DP04_0076 are equivalent
+
+
+devtools::load_all()
+
+dep_build_varlist(geography = "county", variables = "svi", year = 2020, survey = "acs5", output = "vector")
+

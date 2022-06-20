@@ -61,51 +61,76 @@
     <dl><dt>geography</dt>
 <dd><p>A character scalar; one of <code>"state"</code>, <code>"county"</code>, or
 <code>"tract"</code></p></dd>
+
+
 <dt>variables</dt>
 <dd><p>A character scalar or vector listing deprivation measures
 to return. These include the gini coefficient (<code>gini</code>)...</p></dd>
+
+
 <dt>keep_subscales</dt>
 <dd><p>A logical scalar; if <code>FALSE</code> (defualt), subscales
 for SVI, SVIp, and CCVI will not be returned. If <code>TRUE</code>, these components
 will be returned.</p></dd>
+
+
 <dt>keep_components</dt>
 <dd><p>A logical salar; if <code>FALSE</code> (defualt), only the
 main output measures will be returned. If <code>TRUE</code>, all individual
 Census variables for each requested measure of deprivation will be
 returned. Be aware that this can create very large output tables.</p></dd>
+
+
 <dt>output</dt>
 <dd><p>A character scalar; one of <code>"tidy"</code> (long output) or
 <code>"wide"</code> depending on the type of data format you want.</p></dd>
+
+
 <dt>year</dt>
 <dd><p>A numeric between 2010 and 2020</p></dd>
+
+
 <dt>state</dt>
 <dd><p>A state name or FIPS code (may be either character or numeric
 as well as scalar or vector)</p></dd>
+
+
 <dt>county</dt>
 <dd><p>A county FIPS code or vector of FIPS codes</p></dd>
+
+
 <dt>geometry</dt>
 <dd><p>A logical salar; if <code>FALSE</code> (defualt), tabular data are
 returned. If <code>TRUE</code>, a <code>sf</code> class object will be returned.
 This will only work when <code>output = "wide"</code>.</p></dd>
+
+
 <dt>keep_geo_vars</dt>
 <dd><p>A logical salar; if <code>FALSE</code> (defualt), a minimum
 number of spatial variables are returned. If <code>TRUE</code>, a full set of
 TIGER/Line variables are returned. This is only relevant if
 <code>geometry = TRUE</code>.</p></dd>
+
+
 <dt>shift_geo</dt>
 <dd><p>A logical scalar; if <code>FALSE</code> (defualt), Alaska and
 Hawaii will appear in their cartographically correct locations. If
 <code>TRUE</code>, Alaska and Hawaii will be shifted south to facilitate
 more straightforward national mapping.</p></dd>
+
+
 <dt>units</dt>
 <dd><p>A character scalar; either <code>"mi"</code> (default; miles) or
 <code>"km"</code> (kilometers)</p></dd>
+
+
 <dt>debug</dt>
 <dd><p>Additional parameters for debugging and testing
 <code>deprivateR</code>. The two styles are <code>"messages"</code> (will print
 all messages from <code>tidycensus</code> and <code>sociome</code>) and
 <code>"test"</code> (will use built-in data instead of making live API
 calls).</p></dd>
+
 </dl></div>
 
   </div>
@@ -120,7 +145,7 @@ calls).</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

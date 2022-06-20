@@ -1,8 +1,8 @@
 pandoc: 2.14.2
-pkgdown: 2.0.3
+pkgdown: 2.0.4
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-06-07T17:04Z
+last_built: 2022-06-20T15:10Z
 urls:
   reference: https://chris-prener.github.io/deprivateR/reference
   article: https://chris-prener.github.io/deprivateR/articles

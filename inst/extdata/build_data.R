@@ -7,7 +7,7 @@ gini10 <- "B19083"
 ### primary variables to download
 pri_vars <- c("S0601_C01_001", # total population
               "DP04_0001", # total housing units
-              "DP02_0001") # total households
+              "DP02_0001") # total households (equivalent to B11005_001?)
 
 ### theme 1 - socioeconomic status
 ses_vars <- c("B17001_001", "B17001_002", # poverty status
@@ -34,11 +34,11 @@ eng_vars <- c("B16004_007", "B16004_008", "B16004_012", "B16004_013", "B16004_01
 htt_vars <- c("DP04_0006", # total housing units for structure type
               "DP04_0012", "DP04_0013", # 10 or more units
               "DP04_0014", # mobile home units
-              "DP04_0076", "DP04_0078", "DP04_0079", # crowding
+              "DP04_0076", "DP04_0078", "DP04_0079", # crowding - switch out 76 for DP02_0001
               "DP04_0057", "DP04_0058", # vehicles available
               "B26001_001", # group quarters population
               "DP04_0001", # total housing units
-              "S0601_C01_001E", # total population
+              "S0601_C01_001", # total population
               "DP04_0002E") # occupied housing units
 
 ### combine

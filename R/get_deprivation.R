@@ -3,7 +3,7 @@
 #' @description Calculates various measures of deprivation.
 #'
 #' @usage get_deprivation(geography, variables, keep_subscales = FALSE,
-#'     keep_components = FALSE, output=, year, state = NULL,
+#'     keep_components = FALSE, output, year, survey, state = NULL,
 #'     county = NULL, geometry = FALSE, keep_geo_vars = FALSE, shift_geo = FALSE,
 #'     units, debug = NULL)
 #'
@@ -21,6 +21,10 @@
 #' @param output A character scalar; one of \code{"tidy"} (long output) or
 #'     \code{"wide"} depending on the type of data format you want.
 #' @param year A numeric between 2010 and 2020
+#' @param survey A character scalar representing the Census product. It can
+#'     be any American Community Survey product (either \code{"acs1"},
+#'     \code{"acs3"}, or \code{"acs5"}). Note that \code{"acs3"} was
+#'     discontinued after 2013.
 #' @param state A state name or FIPS code (may be either character or numeric
 #'     as well as scalar or vector)
 #' @param county A county FIPS code or vector of FIPS codes
@@ -55,11 +59,11 @@ get_deprivation <- function(geography, variables,
 
   # check inputs
   if (missing(geography)) {
-    stop("A level of geography must be provided. Please choose one of: 'state', 'county', or 'tract'.")
+    stop("A level of geography must be provided. Please choose one of: 'state' or 'county'.")
   }
 
   if (geography %in% c("state", "county", "tract") == FALSE){
-    stop("Invalid level of geography provided. Please choose one of: 'state', 'county', or 'tract'.")
+    stop("Invalid level of geography provided. Please choose one of: 'state' or 'county'.")
   }
 
   if (is.null(debug)){

@@ -1,13 +1,13 @@
 #' Create Variable Lists
 #'
-#' @description This function exports a vector or \code{tibble} containing
+#' @description This function creates a vector or \code{tibble} containing
 #'     variables included in particular calls.
 #'
-#' @usage dep_build_varlist(year, variables, survey, output = "vector")
+#' @usage dep_build_varlist(year, index, survey, output = "vector")
 #'
 #' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
 #'     \code{"tract"}
-#' @param variables A character scalar or vector listing deprivation measures
+#' @param index A character scalar or vector listing deprivation measures
 #'     to return. These include the gini coefficient (\code{gini})...
 #' @param year A numeric between 2010 and 2020
 #' @param survey A character scalar representing the Census product. It can
@@ -21,17 +21,17 @@
 #'     variable names, labels, and the measure(s) they are associated with.
 #'
 #' @export
-dep_build_varlist <- function(geography, variables, year, survey, output = "vector"){
+dep_build_varlist <- function(geography, index, year, survey, output = "vector"){
 
   ## gini
-  if ("gini" %in% variables == TRUE){
-    a <- dep_internal$request_vars$gini10
+  if ("gini" %in% index == TRUE){
+    a <- request_vars$gini10
   } else {
     a <- NULL
   }
 
   ## svi
-  if ("svi" %in% variables == TRUE){
+  if ("svi" %in% index == TRUE){
     b <- unlist(request_vars$svi19)
     svi <- TRUE
   } else {
@@ -40,7 +40,7 @@ dep_build_varlist <- function(geography, variables, year, survey, output = "vect
   }
 
   ## adi
-  if ("adi" %in% variables == TRUE){
+  if ("adi" %in% index == TRUE | "adi3" %in% index == TRUE){
     c <- build_adi_varlist(geography, year = year, survey = survey, output = output)
   } else {
     c <- NULL
@@ -63,6 +63,7 @@ dep_build_varlist <- function(geography, variables, year, survey, output = "vect
 
 }
 
+# sub function for ADI specific variable lists
 build_adi_varlist <- function(geography, year, survey, output){
 
   ## create data object
@@ -116,3 +117,57 @@ build_adi_varlist <- function(geography, year, survey, output){
   return(out)
 
 }
+
+# sub function for adding appropriate suffix values
+dep_expand_varlist <- function(geography, index, year, survey,
+                               estimates_only = FALSE, moe_only = FALSE){
+
+  # create initial variable list
+  if (index %in% c("gini", "adi", "adi3", "svi")){
+    out <- dep_build_varlist(geography = geography, index = index,
+                             year = year, survey = survey)
+  } else if (index == "svi, msl all") {
+    out <- c(request_vars$svi19$msl_vars, request_vars$svi19$eng_vars)
+  } else if (index %in% c("svi, pri", "svi, ses", "svi, hhd", "svi, msl", "svi, eng", "svi, htt")){
+    req <- paste0(stringr::word(index, 2),"_vars")
+    out <- request_vars$svi19[[req]]
+  }
+
+  # expand and combine
+  if (estimates_only == FALSE & moe_only == FALSE){
+    out <- sort(c(paste0(out, "E"), paste0(out, "M")))
+  } else if (estimates_only == TRUE & moe_only == FALSE){
+    out <- sort(paste0(out, "E"))
+  } else if (estimates_only == FALSE & moe_only == TRUE){
+    out <- sort(paste0(out, "M"))
+  }
+
+  # return
+  return(out)
+
+}
+
+# sub function for zcta3 aggregation
+dep_zcta3_varlist <- function(varlist){
+
+  ## intensive variables in scales
+  intensive_vars <- c("B19083_001", # gini coefficient
+                      "B06011_001", # median income
+                      "B19301_001", # per capita income
+                      "B19013_001", # median household income
+                      "B19113_001", # median family income
+                      "B25064_001", # median gross rent
+                      "B25077_001", # median value of owner-occupied housing
+                      "B25088_002") # median monthly costs for housing units w/ mortgage
+
+  ## create output
+  out <- list(
+    extensive = varlist[varlist %in% intensive_vars == FALSE],
+    intensive = varlist[varlist %in% intensive_vars == TRUE]
+  )
+
+  ## return output
+  return(out)
+
+}
+

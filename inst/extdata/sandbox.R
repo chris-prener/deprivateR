@@ -33,5 +33,6 @@ df <- calculate_adi(df)
 
 devtools::load_all()
 
-dep_build_varlist(geography = "county", variables = "svi", year = 2020, survey = "acs5", output = "vector")
+x <- dep_get_index(geography = "county", index = "svi", year = 2020, survey = "acs5",
+                   state = "MO")
 

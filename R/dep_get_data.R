@@ -234,6 +234,7 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
                                  year = year,
                                  survey = survey,
                                  geometry = geometry,
+                                 shift_geo = shift_geo,
                                  keep_geo_vars = keep_geo_vars,
                                  key = key)
     } else if (debug == "call"){
@@ -245,11 +246,39 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
                                  year = year,
                                  survey = survey,
                                  geometry = geometry,
+                                 shift_geo = shift_geo,
                                  keep_geo_vars = keep_geo_vars,
                                  show_call = TRUE,
                                  key = key)
     } else if (debug == "test"){
       stop("testing debug mode not enabled yet!")
+    }
+
+    # manage territories
+    if (is.null(territory) == TRUE){
+
+      out <- dplyr::filter(out, substr(GEOID, 1,2) %in% c("60", "66", "69", "72", "78") == FALSE)
+
+    } else if (is.null(territory) == FALSE){
+
+      ## territory vector
+      territory_vec <- c("AS", "GU", "MP", "PR", "VI")
+
+      if (all(territory == territory_vec) == FALSE){
+
+        ## construct list
+        territory_vec <- territory_vec[territory_vec %in% territory == FALSE]
+
+        ## create data.frame
+        territory_df <- data.frame(territory = c("AS", "GU", "MP", "PR", "VI"),
+                                   GEOID = c("60", "66", "69", "72", "78"))
+        territory_df <- territory_df[territory_df$territory %in% territory == FALSE,]
+        territory_id <- territory_df$GEOID
+
+        ## exclude
+        out <- dplyr::filter(out, substr(GEOID, 1,2) %in% territory_id == FALSE)
+
+      }
     }
 
     ## optionally handle geometric data

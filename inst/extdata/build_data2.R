@@ -11,14 +11,15 @@ pri_vars <- c("S0601_C01_001", # total population
 
 ### theme 1 - socioeconomic status
 ses_vars <- c("B17001_001", "B17001_002", # poverty status
-              "DP03_0001", "DP03_0005", # employment status
+              "DP03_0005", "DP03_0009P", # employment status "DP03_0001",
               "B19301_001", # per capita income
               "B06009_001", "B06009_002") # less than a HS education
 
 ### theme 2 - household composition and disability
 hhd_vars <- c("S0101_C01_001", "S0101_C01_030", "S0101_C01_022", # selected age categories
-              "DP02_0071", "DP02_0072", # civilian non institutionalized population with disability
-              "B11012_001", "B11012_010", "B11012_015") # single parent households
+              "DP02_0070", "DP02_0071", # civilian non institutionalized population with disability
+              "DP02_0001", "DP02_0007", "DP02_0009")
+              #"B11012_001", "B11012_010", "B11012_015") # single parent households
 
 ### theme 3 - minority status and language
 msl_vars <- c("S0601_C01_001", # total population

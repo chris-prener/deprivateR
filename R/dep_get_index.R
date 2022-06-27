@@ -9,13 +9,15 @@
 #'     keep_geo_vars = FALSE, shift_geo = FALSE, units, debug = NULL)
 #'
 #' @export
-dep_get_index <- function(geography, index, keep_subscales = FALSE,
-                          keep_components = FALSE, output, year, survey = "acs5",
+dep_get_index <- function(geography, index, svi_round = FALSE, adi_percent = TRUE,
+                          keep_subscales = FALSE, keep_components = FALSE,
+                          output, year, survey = "acs5",
                           state = NULL, county = NULL,
                           territory = c("AS", "GU", "MP", "PR", "VI"),
                           zcta = NULL, zcta3_method = NULL,
                           geometry = FALSE, cb = FALSE, keep_geo_vars = FALSE,
-                          shift_geo = FALSE, units, key, debug = NULL){
+                          shift_geo = FALSE, add_ons = NULL,
+                          key, debug = NULL){
 
   # global bindings
 
@@ -62,7 +64,8 @@ dep_get_index <- function(geography, index, keep_subscales = FALSE,
   if ("svi" %in% index == TRUE){
     svi <- dep_process_svi(demo, geography = geography, year = year, survey = survey,
                            keep_subscales = keep_subscales,
-                           keep_components = keep_components)
+                           keep_components = keep_components,
+                           svi_round = svi_round)
     out <- merge(x = out, y = svi, by = "GEOID", all.x = TRUE)
   }
 

@@ -66,7 +66,7 @@ dep_process_adi <- function(.data, geography, year, survey,
 
 ## svi
 dep_process_svi <- function(.data, geography, year, survey, keep_subscales,
-                             keep_components){
+                             keep_components, svi_round){
 
   ## subscale creation
   if (keep_components == TRUE){
@@ -75,13 +75,17 @@ dep_process_svi <- function(.data, geography, year, survey, keep_subscales,
   }
 
   theme1 <- dep_process_svi_ses(.data, geography = geography, year = year,
-                             survey = survey, keep_components = keep_components)
+                             survey = survey, keep_components = keep_components,
+                             svi_round = svi_round)
   theme2 <- dep_process_svi_hhd(.data, geography = geography, year = year,
-                                survey = survey, keep_components = keep_components)
+                                survey = survey, keep_components = keep_components,
+                                svi_round = svi_round)
   theme3 <- dep_process_svi_msl(.data, geography = geography, year = year,
-                                survey = survey, keep_components = keep_components)
+                                survey = survey, keep_components = keep_components,
+                                svi_round = svi_round)
   theme4 <- dep_process_svi_htt(.data, geography = geography, year = year,
-                                survey = survey, keep_components = keep_components)
+                                survey = survey, keep_components = keep_components,
+                                svi_round = svi_round)
 
   ## combine subscales
   if (keep_components == TRUE){
@@ -96,11 +100,19 @@ dep_process_svi <- function(.data, geography, year, survey, keep_subscales,
 
   ## calculate svi
   out$SPL_THEMES <- out$SPL_THEME1 + out$SPL_THEME2 + out$SPL_THEME3 + out$SPL_THEME4
-  out$SVI <- dep_percent_rank(out$SPL_THEMES)*100
-  out$SVI_RPL_THEME1 <- out$SVI_RPL_THEME1*100
-  out$SVI_RPL_THEME2 <- out$SVI_RPL_THEME2*100
-  out$SVI_RPL_THEME3 <- out$SVI_RPL_THEME3*100
-  out$SVI_RPL_THEME4 <- out$SVI_RPL_THEME4*100
+
+  ## optionally round
+  if (svi_round == TRUE){
+    out$SPL_THEMES <- round(out$SPL_THEMES, digits = 4)
+  }
+
+  ## calculate svi percentile
+  out$SVI <- dep_percent_rank(out$SPL_THEMES)
+
+  ## optionally round
+  if (svi_round == TRUE){
+    out$SVI <- round(out$SVI, digits = 4)
+  }
 
   ## format output
   final_vars <- c("GEOID", "SVI", "SVI_RPL_THEME1", "SVI_RPL_THEME2", "SVI_RPL_THEME3", "SVI_RPL_THEME4")
@@ -130,7 +142,7 @@ dep_process_svi <- function(.data, geography, year, survey, keep_subscales,
 }
 
 ### svi, primary variables
-dep_process_svi_pri <- function(.data, geography, year, survey){
+dep_process_svi_pri <- function(.data, geography, year, survey, svi_round){
 
   ## create variable list
   varlist <- dep_expand_varlist(geography = geography, index = "svi, pri",
@@ -158,7 +170,7 @@ dep_process_svi_pri <- function(.data, geography, year, survey){
 }
 
 ### svi, ses variables
-dep_process_svi_ses <- function(.data, geography, year, survey, keep_components){
+dep_process_svi_ses <- function(.data, geography, year, survey, keep_components, svi_round){
 
   ## create variable list
   varlist <- dep_expand_varlist(geography = geography, index = "svi, ses",
@@ -179,35 +191,57 @@ dep_process_svi_ses <- function(.data, geography, year, survey, keep_components)
   names(.data)[names(.data) == "B17001_002M"] <- "M_POV"
   names(.data)[names(.data) == "B19301_001E"] <- "E_PCI"
   names(.data)[names(.data) == "B19301_001M"] <- "M_PCI"
-  names(.data)[names(.data) == "DP03_0001E"] <- "D_UNEMP"
-  names(.data)[names(.data) == "DP03_0001M"] <- "DM_UNEMP"
+  # names(.data)[names(.data) == "DP03_0001E"] <- "D_UNEMP"
+  # names(.data)[names(.data) == "DP03_0001M"] <- "DM_UNEMP"
   names(.data)[names(.data) == "DP03_0005E"] <- "E_UNEMP"
   names(.data)[names(.data) == "DP03_0005M"] <- "M_UNEMP"
+  names(.data)[names(.data) == "DP03_0009PE"] <- "EP_UNEMP"
+  names(.data)[names(.data) == "DP03_0009PM"] <- "MP_UNEMP"
 
   ## calculate metrics
   .data$EP_POV <- .data$E_POV/.data$D_POV*100
   .data$MP_POV <- ((sqrt(.data$M_POV^2-((.data$EP_POV/100)^2*.data$DM_POV^2)))/.data$DM_POV)*100
-  .data$EPL_POV <- dep_percent_rank(.data$EP_POV)
-
-  .data$EP_UNEMP <- .data$E_UNEMP/.data$D_UNEMP*100
-  .data$MP_UNEMP <- ((sqrt(.data$M_UNEMP^2-((.data$EP_UNEMP/100)^2*.data$DM_UNEMP^2)))/.data$DM_UNEMP)*100
-  .data$EPL_UNEMP <- dep_percent_rank(.data$EP_UNEMP)
-
-  .data$EPL_PCI <- dep_percent_rank(.data$E_PCI)
 
   .data$EP_NOHSDP <- .data$E_NOHSDP/.data$D_NOHSDP*100
   .data$MP_NOHSDP <- ((sqrt(.data$M_NOHSDP^2-((.data$EP_NOHSDP/100)^2*.data$DM_NOHSDP^2)))/.data$DM_NOHSDP)*100
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$EP_UNEMP <- round(.data$EP_UNEMP, digits = 1)
+    .data$MP_UNEMP <- round(.data$MP_UNEMP, digits = 1)
+    .data$EP_POV <- round(.data$EP_POV, digits = 1)
+    .data$MP_POV <- round(.data$MP_POV, digits = 1)
+    .data$EP_NOHSDP <- round(.data$EP_NOHSDP, digits = 1)
+    .data$MP_NOHSDP <- round(.data$MP_NOHSDP, digits = 1)
+  }
+
+  ## calculate percentiles
+  .data$EPL_UNEMP <- dep_percent_rank(.data$EP_UNEMP)
+  .data$EPL_POV <- dep_percent_rank(.data$EP_POV)
+  .data$EPL_PCI <- 1-dep_percent_rank(.data$E_PCI)
   .data$EPL_NOHSDP <- dep_percent_rank(.data$EP_NOHSDP)
 
   ## calculate theme
   .data$SPL_THEME1 <- .data$EPL_POV + .data$EPL_UNEMP + .data$EPL_PCI + .data$EPL_NOHSDP
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SPL_THEME1 <- round(.data$SPL_THEME1, digits = 4)
+  }
+
+  ## calculate theme percentile
   .data$SVI_RPL_THEME1 <- dep_percent_rank(.data$SPL_THEME1)
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SVI_RPL_THEME1 <- round(.data$SVI_RPL_THEME1, digits = 4)
+  }
 
   ## update output order
   if (keep_components == TRUE){
     .data <- subset(.data, select = c(GEOID,
                                       D_POV, DM_POV, E_POV, M_POV, EP_POV, MP_POV, EPL_POV,
-                                      D_UNEMP, DM_UNEMP, E_UNEMP, M_UNEMP, EP_UNEMP, MP_UNEMP, EPL_UNEMP,
+                                      E_UNEMP, M_UNEMP, EP_UNEMP, MP_UNEMP, EPL_UNEMP, # D_UNEMP, DM_UNEMP,
                                       E_PCI, M_PCI, EPL_PCI,
                                       D_NOHSDP, DM_NOHSDP, E_NOHSDP, M_NOHSDP, EP_NOHSDP, MP_NOHSDP, EPL_NOHSDP,
                                       SPL_THEME1, SVI_RPL_THEME1))
@@ -221,7 +255,7 @@ dep_process_svi_ses <- function(.data, geography, year, survey, keep_components)
 }
 
 ### svi, ses variables
-dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components){
+dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components, svi_round){
 
   ## create variable list
   varlist <- dep_expand_varlist(geography = geography, index = "svi, hhd",
@@ -232,12 +266,14 @@ dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components)
   .data <- subset(.data, select = varlist)
 
   ## rename components
-  names(.data)[names(.data) == "B11012_001E"] <- "D_SNGPNT"
-  names(.data)[names(.data) == "B11012_001M"] <- "DM_SNGPNT"
-  names(.data)[names(.data) == "DP02_0071E"] <- "D_DISABL"
-  names(.data)[names(.data) == "DP02_0071M"] <- "DM_DISABL"
-  names(.data)[names(.data) == "DP02_0072E"] <- "E_DISABL"
-  names(.data)[names(.data) == "DP02_0072M"] <- "M_DISABL"
+  names(.data)[names(.data) == "DP02_0001E"] <- "D_SNGPNT"
+  names(.data)[names(.data) == "DP02_0001M"] <- "DM_SNGPNT"
+  # names(.data)[names(.data) == "B11012_001E"] <- "D_SNGPNT"
+  # names(.data)[names(.data) == "B11012_001M"] <- "DM_SNGPNT"
+  names(.data)[names(.data) == "DP02_0070E"] <- "D_DISABL" # 71 in 2019/2020
+  names(.data)[names(.data) == "DP02_0070M"] <- "DM_DISABL" # 72 in 2019/2020
+  names(.data)[names(.data) == "DP02_0071E"] <- "E_DISABL"
+  names(.data)[names(.data) == "DP02_0071M"] <- "M_DISABL"
   names(.data)[names(.data) == "S0101_C01_001E"] <- "D_AGE"
   names(.data)[names(.data) == "S0101_C01_001M"] <- "DM_AGE"
   names(.data)[names(.data) == "S0101_C01_022E"] <- "E_AGE17"
@@ -246,29 +282,57 @@ dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components)
   names(.data)[names(.data) == "S0101_C01_030M"] <- "M_AGE65"
 
   ## calculate components
-  .data$E_SNGPNT <- .data$B11012_010E+.data$B11012_015E
-  .data$M_SNGPNT <- sqrt(.data$B11012_010M^2+.data$B11012_015M^2)
+  # .data$E_SNGPNT <- .data$B11012_010E+.data$B11012_015E
+  # .data$M_SNGPNT <- sqrt(.data$B11012_010M^2+.data$B11012_015M^2)
+  .data$E_SNGPNT <- .data$DP02_0007E+.data$DP02_0009E
+  .data$M_SNGPNT <- sqrt(.data$DP02_0007M^2+.data$DP02_0009M^2)
 
   ## calculate metrics
   .data$EP_AGE17 <- .data$E_AGE17/.data$D_AGE*100
   .data$MP_AGE17 <- ((sqrt(.data$M_AGE17^2-((.data$EP_AGE17/100)^2*.data$DM_AGE^2)))/.data$DM_AGE)*100
-  .data$EPL_AGE17 <- dep_percent_rank(.data$EP_AGE17)
 
   .data$EP_AGE65 <- .data$E_AGE65/.data$D_AGE*100
   .data$MP_AGE65 <- ((sqrt(.data$M_AGE65^2-((.data$EP_AGE65/100)^2*.data$DM_AGE^2)))/.data$DM_AGE)*100
-  .data$EPL_AGE65 <- dep_percent_rank(.data$EP_AGE65)
 
   .data$EP_DISABL <- .data$E_DISABL/.data$D_DISABL*100
   .data$MP_DISABL <- ((sqrt(.data$M_DISABL^2-((.data$EP_DISABL/100)^2*.data$DM_DISABL^2)))/.data$DM_DISABL)*100
-  .data$EPL_DISABL <- dep_percent_rank(.data$EP_DISABL)
 
   .data$EP_SNGPNT <- .data$E_SNGPNT/.data$D_SNGPNT*100
   .data$MP_SNGPNT <- ((sqrt(.data$M_SNGPNT^2-((.data$EP_SNGPNT/100)^2*.data$DM_SNGPNT^2)))/.data$DM_SNGPNT)*100
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$EP_AGE17 <- round(.data$EP_AGE17, digits = 1)
+    .data$MP_AGE17 <- round(.data$MP_AGE17, digits = 1)
+    .data$EP_AGE65 <- round(.data$EP_AGE65, digits = 1)
+    .data$MP_AGE65 <- round(.data$MP_AGE65, digits = 1)
+    .data$EP_DISABL <- round(.data$EP_DISABL, digits = 1)
+    .data$MP_DISABL <- round(.data$MP_DISABL, digits = 1)
+    .data$EP_SNGPNT <- round(.data$EP_SNGPNT, digits = 1)
+    .data$MP_SNGPNT <- round(.data$MP_SNGPNT, digits = 1)
+  }
+
+  ## calculate percentiles
+  .data$EPL_AGE17 <- dep_percent_rank(.data$EP_AGE17)
+  .data$EPL_AGE65 <- dep_percent_rank(.data$EP_AGE65)
+  .data$EPL_DISABL <- dep_percent_rank(.data$EP_DISABL)
   .data$EPL_SNGPNT <- dep_percent_rank(.data$EP_SNGPNT)
 
   ## calculate theme
   .data$SPL_THEME2 <- .data$EPL_AGE17 + .data$EPL_AGE65 + .data$EPL_DISABL + .data$EPL_SNGPNT
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SPL_THEME2 <- round(.data$SPL_THEME2, digits = 4)
+  }
+
+  ## calculate theme percentile
   .data$SVI_RPL_THEME2 <- dep_percent_rank(.data$SPL_THEME2)
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SVI_RPL_THEME2 <- round(.data$SVI_RPL_THEME2, digits = 4)
+  }
 
   ## update output order
   if (keep_components == TRUE){
@@ -287,7 +351,7 @@ dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components)
 }
 
 ### svi, msl variables
-dep_process_svi_msl <- function(.data, geography, year, survey, keep_components){
+dep_process_svi_msl <- function(.data, geography, year, survey, keep_components, svi_round){
 
   ## English variables
   ### create variable list
@@ -347,15 +411,37 @@ dep_process_svi_msl <- function(.data, geography, year, survey, keep_components)
   ### calculate metrics
   .data$EP_MINRTY <- .data$E_MINRTY/.data$S0601_C01_001E*100
   .data$MP_MINRTY <- ((sqrt(.data$M_MINRTY^2-((.data$EP_MINRTY/100)^2*.data$S0601_C01_001M^2)))/.data$S0601_C01_001M)*100
-  .data$EPL_MINRTY <- dep_percent_rank(.data$EP_MINRTY)
 
   .data$EP_LIMENG <- .data$E_LIMENG/.data$D_LIMENG*100
   .data$MP_LIMENG <- ((sqrt(.data$M_LIMENG^2-((.data$EP_LIMENG/100)^2*.data$DM_LIMENG^2)))/.data$DM_LIMENG)*100
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$EP_MINRTY <- round(.data$EP_MINRTY, digits = 1)
+    .data$MP_MINRTY <- round(.data$MP_MINRTY, digits = 1)
+    .data$EP_LIMENG <- round(.data$EP_LIMENG, digits = 1)
+    .data$MP_LIMENG <- round(.data$MP_LIMENG, digits = 1)
+  }
+
+  ## calculate percentiles
+  .data$EPL_MINRTY <- dep_percent_rank(.data$EP_MINRTY)
   .data$EPL_LIMENG <- dep_percent_rank(.data$EP_LIMENG)
 
   ### calculate theme
   .data$SPL_THEME3 <- .data$EPL_MINRTY + .data$EPL_LIMENG
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SPL_THEME3 <- round(.data$SPL_THEME3, digits = 4)
+  }
+
+  ## calculate theme percentile
   .data$SVI_RPL_THEME3 <- dep_percent_rank(.data$SPL_THEME3)
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SVI_RPL_THEME3 <- round(.data$SVI_RPL_THEME3, digits = 4)
+  }
 
   ### update output order
   if (keep_components == TRUE){
@@ -372,7 +458,7 @@ dep_process_svi_msl <- function(.data, geography, year, survey, keep_components)
 }
 
 ### svi, htt variables
-dep_process_svi_htt <- function(.data, geography, year, survey, keep_components){
+dep_process_svi_htt <- function(.data, geography, year, survey, keep_components, svi_round){
 
   ## create variable list
   varlist <- dep_expand_varlist(geography = geography, index = "svi, htt",
@@ -405,27 +491,55 @@ dep_process_svi_htt <- function(.data, geography, year, survey, keep_components)
   ## calculate metrics
   .data$EP_MUNIT <- .data$E_MUNIT/.data$D_HOUSE*100
   .data$MP_MUNIT <- ((sqrt(.data$M_MUNIT^2-((.data$EP_MUNIT/100)^2*.data$DM_HOUSE^2)))/.data$DM_HOUSE)*100
-  .data$EPL_MUNIT <- dep_percent_rank(.data$EP_MUNIT)
 
   .data$EP_MOBILE <- .data$E_MOBILE/.data$D_HOUSE*100
   .data$MP_MOBILE <- ((sqrt(.data$M_MOBILE^2-((.data$EP_MOBILE/100)^2*.data$DM_HOUSE^2)))/.data$DM_HOUSE)*100
-  .data$EPL_MOBILE <- dep_percent_rank(.data$EP_MOBILE)
 
   .data$EP_CROWD <- .data$E_CROWD/.data$D_CROWD*100
   .data$MP_CROWD <- ((sqrt(.data$M_CROWD^2-((.data$EP_CROWD/100)^2*.data$DM_CROWD^2)))/.data$DM_CROWD)*100
-  .data$EPL_CROWD <- dep_percent_rank(.data$EP_CROWD)
 
   .data$EP_NOVEH <- .data$E_NOVEH/.data$D_NOVEH*100
   .data$MP_NOVEH <- ((sqrt(.data$M_NOVEH^2-((.data$EP_NOVEH/100)^2*.data$DM_NOVEH^2)))/.data$DM_NOVEH)*100
-  .data$EPL_NOVEH <- dep_percent_rank(.data$EP_NOVEH)
 
   .data$EP_GROUPQ <- .data$E_GROUPQ/.data$S0601_C01_001E*100
   .data$MP_GROUPQ <- ((sqrt(.data$M_GROUPQ^2-((.data$EP_GROUPQ/100)^2*.data$S0601_C01_001M^2)))/.data$S0601_C01_001M)*100
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$EP_MUNIT <- round(.data$EP_MUNIT, digits = 1)
+    .data$MP_MUNIT <- round(.data$MP_MUNIT, digits = 1)
+    .data$EP_MOBILE <- round(.data$EP_MOBILE, digits = 1)
+    .data$MP_MOBILE <- round(.data$MP_MOBILE, digits = 1)
+    .data$EP_CROWD <- round(.data$EP_CROWD, digits = 1)
+    .data$MP_CROWD <- round(.data$MP_CROWD, digits = 1)
+    .data$EP_NOVEH <- round(.data$EP_NOVEH, digits = 1)
+    .data$MP_NOVEH <- round(.data$MP_NOVEH, digits = 1)
+    .data$EP_GROUPQ <- round(.data$EP_GROUPQ, digits = 1)
+    .data$MP_GROUPQ <- round(.data$MP_GROUPQ, digits = 1)
+  }
+
+  ## calculate percentiles
+  .data$EPL_MUNIT <- dep_percent_rank(.data$EP_MUNIT)
+  .data$EPL_MOBILE <- dep_percent_rank(.data$EP_MOBILE)
+  .data$EPL_CROWD <- dep_percent_rank(.data$EP_CROWD)
+  .data$EPL_NOVEH <- dep_percent_rank(.data$EP_NOVEH)
   .data$EPL_GROUPQ <- dep_percent_rank(.data$EP_GROUPQ)
 
   ## calculate theme
   .data$SPL_THEME4 <- .data$EPL_MUNIT + .data$EPL_MOBILE + .data$EPL_CROWD + .data$EPL_NOVEH + .data$EPL_GROUPQ
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SPL_THEME4 <- round(.data$SPL_THEME4, digits = 4)
+  }
+
+  ## calculate theme percentile
   .data$SVI_RPL_THEME4 <- dep_percent_rank(.data$SPL_THEME4)
+
+  ## optionally round
+  if (svi_round == TRUE){
+    .data$SVI_RPL_THEME4 <- round(.data$SVI_RPL_THEME4, digits = 4)
+  }
 
   ## update output order
   if (keep_components == TRUE){

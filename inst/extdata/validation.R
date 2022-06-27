@@ -9,7 +9,7 @@ library(readr)
 # load data ####
 ## pull data with deprivateR
 dep_18 <- dep_get_index(geography = "county", index = "svi", year = 2018, territory = NULL,
-                        svi_round = FALSE, keep_subscales = TRUE)
+                        svi_round = TRUE, keep_subscales = TRUE, keep_components = TRUE)
 
 ## load CDC data for comparison
 cdc_18 <- read_csv("data-raw/cdc_svi_county_2018.csv") %>%

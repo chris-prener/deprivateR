@@ -32,8 +32,15 @@ dep_build_varlist <- function(geography, index, year, survey, output = "vector")
 
   ## svi
   if ("svi" %in% index == TRUE){
-    b <- unlist(request_vars$svi19)
+
+    if (year == 2018){
+      b <- unlist(request_vars$svi18)
+    } else if (year %in% c(2019, 2020)){
+      b <- unlist(request_vars$svi19)
+    }
+
     svi <- TRUE
+
   } else {
     b <- NULL
     svi <- FALSE
@@ -127,10 +134,23 @@ dep_expand_varlist <- function(geography, index, year, survey,
     out <- dep_build_varlist(geography = geography, index = index,
                              year = year, survey = survey)
   } else if (index == "svi, msl all") {
-    out <- c(request_vars$svi19$msl_vars, request_vars$svi19$eng_vars)
+
+    if (year == 2018){
+      out <- c(request_vars$svi18$msl_vars, request_vars$svi18$eng_vars)
+    } else if (year %in% c(2019, 2020)){
+      out <- c(request_vars$svi19$msl_vars, request_vars$svi19$eng_vars)
+    }
+
   } else if (index %in% c("svi, pri", "svi, ses", "svi, hhd", "svi, msl", "svi, eng", "svi, htt")){
+
     req <- paste0(stringr::word(index, 2),"_vars")
-    out <- request_vars$svi19[[req]]
+
+    if (year == 2018){
+      out <- request_vars$svi18[[req]]
+    } else if (year %in% c(2019, 2020)){
+      out <- request_vars$svi19[[req]]
+    }
+
   }
 
   # expand and combine

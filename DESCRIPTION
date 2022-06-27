@@ -15,7 +15,7 @@ URL: https://chris-prener.github.io/deprivateR/
 BugReports: https://github.com/chris-prener/deprivateR/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports:
     dplyr,
     measurements,

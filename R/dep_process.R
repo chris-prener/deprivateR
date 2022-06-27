@@ -266,14 +266,22 @@ dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components,
   .data <- subset(.data, select = varlist)
 
   ## rename components
-  names(.data)[names(.data) == "DP02_0001E"] <- "D_SNGPNT"
-  names(.data)[names(.data) == "DP02_0001M"] <- "DM_SNGPNT"
-  # names(.data)[names(.data) == "B11012_001E"] <- "D_SNGPNT"
-  # names(.data)[names(.data) == "B11012_001M"] <- "DM_SNGPNT"
-  names(.data)[names(.data) == "DP02_0070E"] <- "D_DISABL" # 71 in 2019/2020
-  names(.data)[names(.data) == "DP02_0070M"] <- "DM_DISABL" # 72 in 2019/2020
-  names(.data)[names(.data) == "DP02_0071E"] <- "E_DISABL"
-  names(.data)[names(.data) == "DP02_0071M"] <- "M_DISABL"
+  if (year == 2018){
+    names(.data)[names(.data) == "DP02_0001E"] <- "D_SNGPNT"
+    names(.data)[names(.data) == "DP02_0001M"] <- "DM_SNGPNT"
+    names(.data)[names(.data) == "DP02_0070E"] <- "D_DISABL"
+    names(.data)[names(.data) == "DP02_0070M"] <- "DM_DISABL"
+    names(.data)[names(.data) == "DP02_0071E"] <- "E_DISABL"
+    names(.data)[names(.data) == "DP02_0071M"] <- "M_DISABL"
+  } else if (year %in% c(2019, 2020)){
+    names(.data)[names(.data) == "B11012_001E"] <- "D_SNGPNT"
+    names(.data)[names(.data) == "B11012_001M"] <- "DM_SNGPNT"
+    names(.data)[names(.data) == "DP02_0071E"] <- "D_DISABL"
+    names(.data)[names(.data) == "DP02_0071M"] <- "DM_DISABL"
+    names(.data)[names(.data) == "DP02_0072E"] <- "E_DISABL"
+    names(.data)[names(.data) == "DP02_0072M"] <- "M_DISABL"
+  }
+
   names(.data)[names(.data) == "S0101_C01_001E"] <- "D_AGE"
   names(.data)[names(.data) == "S0101_C01_001M"] <- "DM_AGE"
   names(.data)[names(.data) == "S0101_C01_022E"] <- "E_AGE17"
@@ -282,10 +290,13 @@ dep_process_svi_hhd <- function(.data, geography, year, survey, keep_components,
   names(.data)[names(.data) == "S0101_C01_030M"] <- "M_AGE65"
 
   ## calculate components
-  # .data$E_SNGPNT <- .data$B11012_010E+.data$B11012_015E
-  # .data$M_SNGPNT <- sqrt(.data$B11012_010M^2+.data$B11012_015M^2)
-  .data$E_SNGPNT <- .data$DP02_0007E+.data$DP02_0009E
-  .data$M_SNGPNT <- sqrt(.data$DP02_0007M^2+.data$DP02_0009M^2)
+  if (year == 2018){
+    .data$E_SNGPNT <- .data$DP02_0007E+.data$DP02_0009E
+    .data$M_SNGPNT <- sqrt(.data$DP02_0007M^2+.data$DP02_0009M^2)
+  } else if (year %in% c(2019, 2020)){
+    .data$E_SNGPNT <- .data$B11012_010E+.data$B11012_015E
+    .data$M_SNGPNT <- sqrt(.data$B11012_010M^2+.data$B11012_015M^2)
+  }
 
   ## calculate metrics
   .data$EP_AGE17 <- .data$E_AGE17/.data$D_AGE*100

@@ -1,7 +1,7 @@
 ## variable definitions
 ### https://www.atsdr.cdc.gov/placeandhealth/svi/documentation/SVI_documentation_2018.html
 ### vars_all <- load_variables(year = 2019, dataset = "acs5")
-### https://api.census.gov/data/2019/acs/acs1/profile/variables.html
+### https://api.census.gov/data/2019/acs/acs5/profile/variables.html
 ### https://api.census.gov/data/2019/acs/acs5/subject/variables.html
 
 devtools::load_all()

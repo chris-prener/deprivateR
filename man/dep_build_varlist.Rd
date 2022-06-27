@@ -4,13 +4,13 @@
 \alias{dep_build_varlist}
 \title{Create Variable Lists}
 \usage{
-dep_build_varlist(year, variables, survey, output = "vector")
+dep_build_varlist(year, index, survey, output = "vector")
 }
 \arguments{
 \item{geography}{A character scalar; one of \code{"state"}, \code{"county"}, or
 \code{"tract"}}
 
-\item{variables}{A character scalar or vector listing deprivation measures
+\item{index}{A character scalar or vector listing deprivation measures
 to return. These include the gini coefficient (\code{gini})...}
 
 \item{year}{A numeric between 2010 and 2020}
@@ -28,6 +28,6 @@ A vector of variable names or a \code{tibble} containing both
     variable names, labels, and the measure(s) they are associated with.
 }
 \description{
-This function exports a vector or \code{tibble} containing
+This function creates a vector or \code{tibble} containing
     variables included in particular calls.
 }

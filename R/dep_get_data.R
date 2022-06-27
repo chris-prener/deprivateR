@@ -234,7 +234,6 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
                                  year = year,
                                  survey = survey,
                                  geometry = geometry,
-                                 shift_geo = shift_geo,
                                  keep_geo_vars = keep_geo_vars,
                                  key = key)
     } else if (debug == "call"){
@@ -246,7 +245,6 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
                                  year = year,
                                  survey = survey,
                                  geometry = geometry,
-                                 shift_geo = shift_geo,
                                  keep_geo_vars = keep_geo_vars,
                                  show_call = TRUE,
                                  key = key)
@@ -284,6 +282,7 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
     ## optionally handle geometric data
     if (geometry == TRUE){
 
+      ## break apart geo and demo data
       if (keep_geo_vars == TRUE){
         geo <- dplyr::select(out, -c(varlist))
         demo <- dplyr::select(out, c())
@@ -291,6 +290,11 @@ dep_get_data <- function(geography, varlist, year, survey, state, county,
         geo <- dplyr::select(out, GEOID, NAME)
         demo <- dplyr::select(out, -NAME)
         sf::st_geometry(demo) <- NULL
+      }
+
+      ## shift geometry
+      if (shift_geo == TRUE){
+        geo <- tigris::shift_geometry(geo, position = "below")
       }
 
     } else if (geometry == FALSE){

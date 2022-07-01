@@ -10,12 +10,16 @@ library(tigris)
 library(dplyr)
 
 dep_get_index(geography = "county", index = "gini", year = 2020, state = "MO")
-dep_get_index(geography = "county", index = "adi", year = 2019, state = "MO")
+z <- dep_get_index(geography = "zcta5", index = "svi", year = 2020, territory = NULL, keep_subscales = TRUE)
 counties <- dep_get_index(geography = "county", index = c("gini", "adi", "svi"), year = 2020, state = "MO",
                           geometry = TRUE)
 
 county <- dep_get_index(geography = "county", index = "gini", year = 2020, territory = "PR", zcta3_method = "mean", geometry = TRUE, cb = TRUE, shift_geo = TRUE)
-county <- shift_geometry(county, position = "below")
+county <- dep_get_index(geography = "county", index = "svi", year = 2020, territory = NULL, geometry = TRUE, cb = TRUE, shift_geo = TRUE)
+county <- dep_get_index(geography = "county", index = "svi", year = 2020, territory = NULL, geometry = FALSE, keep_subscales = TRUE, keep_components = TRUE)
+
+readr::write_csv(county, "inst/extdata/svi2020_all.csv")
+# county <- shift_geometry(county, position = "below")
 
 zcta5 <- dep_get_index(geography = "zcta5", index = "adi", year = 2020, territory = "PR", zcta3_method = "mean", geometry = TRUE, cb = TRUE, shift_geo = TRUE)
 zcta3 <- dep_get_index(geography = "zcta3", index = "svi", year = 2020, territory = "PR", zcta3_method = "mean", geometry = TRUE, shift_geo = TRUE)
@@ -39,6 +43,8 @@ zcta5 <- map_breaks(zcta5, var = "ADI_rank", newvar = "map_adi",
                        style = "fisher", classes = 5, dig_lab = 3)
 county <- map_breaks(county, var = "E_GINI", newvar = "map_gini",
                        style = "fisher", classes = 5, dig_lab = 3)
+county <- map_breaks(county, var = "SVI", newvar = "map_svi",
+                     style = "fisher", classes = 5, dig_lab = 3)
 
 # map SVI ####
 ## create map
@@ -49,12 +55,27 @@ p <- ggplot() +
   scale_fill_brewer(palette = "Blues", name = "SVI", na.value = "#e0e0e0") +
   labs(
     title = "Social Vulnerability Index (2020)",
-    subtitle = "Three-Digit ZIP Code Tabulation Areas"
+    # subtitle = "Three-Digit ZIP Code Tabulation Areas"
   ) +
   sequoia_theme(base_size = 22, background = "white", map = TRUE)
 
 ## save map
 save_plots(filename = "inst/extdata/zcta3_svi_2020.png", plot = p, preset = "lg")
+
+## create map
+p <- ggplot() +
+  geom_sf(data = states, fill = "#e0e0e0", color = NA) +
+  geom_sf(data = county, mapping = aes(fill = map_svi), size = .2) +
+  geom_sf(data = states, fill = NA, color = "black", size = 1.2) +
+  scale_fill_brewer(palette = "Blues", name = "SVI", na.value = "#e0e0e0") +
+  labs(
+    title = "Social Vulnerability Index (2020)",
+    subtitle = "Counties"
+  ) +
+  sequoia_theme(base_size = 22, background = "white", map = TRUE)
+
+## save map
+save_plots(filename = "inst/extdata/county_svi_2020.png", plot = p, preset = "lg")
 
 # map ADI ####
 ## create map

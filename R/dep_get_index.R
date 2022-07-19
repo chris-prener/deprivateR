@@ -1,23 +1,60 @@
 #' Calculate Deprivation Measures
 #'
-#' @description Calculates various measures of deprivation.
+#' @description Calculates various measures of deprivation, including a range
+#'     of options for structuring output. The three included measures include
+#'     the area deprivation index, gini coefficient, and the social vulnerability
+#'     index.
 #'
-#' @usage dep_get_index(geography, variables, keep_subscales = FALSE,
-#'     keep_components = FALSE, output, year, survey, state = NULL,
-#'     county = NULL, territory = c("AS", "GU", "MP", "PR", "VI"),
-#'     zcta = NULL, zcta3_method = NULL, geometry = FALSE,
-#'     keep_geo_vars = FALSE, shift_geo = FALSE, units, debug = NULL)
+#' @usage dep_get_index(geography, index, svi_round = FALSE, adi_percent = TRUE,
+#'     keep_subscales = FALSE, keep_components = FALSE, output = "tidy", year, survey,
+#'     state = NULL, county = NULL, territory = c("AS", "GU", "MP", "PR", "VI"),
+#'     zcta = NULL, zcta3_method = NULL, geometry = FALSE, cb = FALSE,
+#'     keep_geo_vars = FALSE, shift_geo = FALSE, units, key, debug = NULL)
+#'
+#' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
+#'     \code{"tract"}
+#' @param index A character scalar or vector listing deprivation measures
+#'     to return. These include the area deprivation index (\code{"adi"}),
+#'     gini coefficient (\code{"gini"}), and the social vulnerability index
+#'     (\code{"svi"}). See Details.
+#' @param svi_round A logical scalar; if \code{FALSE} (default), SVI will be
+#'     calculated with the greatest possible precision. If \code{TRUE}, rounding
+#'     will be introduced into the SVI algorithm in order to approximate the
+#'     scores published by the CDC. This will not yield exact scores since,
+#'     as the CDC warns in their documentation, reproducing them is not possible.
+#'     With rounding applied, users can expect a majority of units to match
+#'     CDC scores while a small number of units will have SVI scores that differ
+#'     in the thousandths or ten-thousandths place.
+#' @param adi_percent A logical scalar; if \code{TRUE} (default), ADI and (if
+#'     requested) its subscales (see Details) will be returned as percentiles. If
+#'     \code{FALSE}, raw ADI scores will be returned.
+#' @param keep_subscales A logical scalar; if \code{FALSE} (default), only the
+#'     full ADI and/or SVI scores (depending on what is passed to the \code{index}
+#'     argument) will be returned. If \code{TRUE} and \code{"svi"} is listed for
+#'     the \code{index} argument, the four SVI "themes" (see Details) will be
+#'     returned along with the full SVI score. Similarly, if \code{"adi"} is
+#'     listed for the \code{index} argument, the three ADI subscales (see Details)
+#'     will be returned.
+#' @param keep_components A logical scalar; if \code{FALSE} (default), none of
+#'     the components used to calculate ADI and/or SVI scores (depending on what
+#'     is passed to the \code{index} argument) will be returned. If \code{TRUE},
+#'     all of the demographic variables used to calculate ADI and/or SVI will
+#'     be returned.
+#' @param year A numeric scalar between 2010 and 2020
+#' @param survey A character scalar representing the Census product. It can
+#'     be any American Community Survey product (either \code{"acs1"},
+#'     \code{"acs3"}, or \code{"acs5"}). Note that \code{"acs3"} was
+#'     discontinued after 2013.
 #'
 #' @export
 dep_get_index <- function(geography, index, svi_round = FALSE, adi_percent = TRUE,
                           keep_subscales = FALSE, keep_components = FALSE,
-                          output, year, survey = "acs5",
+                          output = "tidy", year, survey = "acs5",
                           state = NULL, county = NULL,
                           territory = c("AS", "GU", "MP", "PR", "VI"),
                           zcta = NULL, zcta3_method = NULL,
                           geometry = FALSE, cb = FALSE, keep_geo_vars = FALSE,
-                          shift_geo = FALSE, add_ons = NULL,
-                          key, debug = NULL){
+                          shift_geo = FALSE, units, key, debug = NULL){
 
   # global bindings
 

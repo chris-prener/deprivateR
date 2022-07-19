@@ -3,19 +3,21 @@
 #' @description This function creates a vector or \code{tibble} containing
 #'     variables included in particular calls.
 #'
-#' @usage dep_build_varlist(year, index, survey, output = "vector")
+#' @usage dep_build_varlist(geography, year, index, survey, output = "vector")
 #'
 #' @param geography A character scalar; one of \code{"state"}, \code{"county"}, or
 #'     \code{"tract"}
 #' @param index A character scalar or vector listing deprivation measures
-#'     to return. These include the gini coefficient (\code{gini})...
-#' @param year A numeric between 2010 and 2020
+#'     to return. These include the area deprivation index (\code{"adi"}),
+#'     gini coefficient (\code{"gini"}), and the social vulnerability index
+#'     (\code{"svi"}).
+#' @param year A numeric scalar between 2010 and 2020
 #' @param survey A character scalar representing the Census product. It can
 #'     be any American Community Survey product (either \code{"acs1"},
 #'     \code{"acs3"}, or \code{"acs5"}). Note that \code{"acs3"} was
 #'     discontinued after 2013.
 #' @param output A character scalar; either \code{"vector"} (default) or
-#'     \code{tibble}. See Returns below.
+#'     \code{tibble}. See Return below.
 #'
 #' @return A vector of variable names or a \code{tibble} containing both
 #'     variable names, labels, and the measure(s) they are associated with.
@@ -47,7 +49,7 @@ dep_build_varlist <- function(geography, index, year, survey, output = "vector")
   }
 
   ## adi
-  if ("adi" %in% index == TRUE | "adi3" %in% index == TRUE){
+  if ("adi" %in% index == TRUE){
     c <- build_adi_varlist(geography, year = year, survey = survey, output = output)
   } else {
     c <- NULL
